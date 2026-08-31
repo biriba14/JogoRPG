@@ -1,6 +1,6 @@
 # ============================================================
 # PROJETO ECLIPSE
-# Aplicação da história ao Framework PyScript Game Jam V2
+# Aplicação da história ao Projeto Eclipse
 # ============================================================
 
 from pyscript import web, when, window
