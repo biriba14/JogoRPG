@@ -1,22 +1,44 @@
 # ============================================================
-# CONFIGURAÇÕES GERAIS
+# PROJETO ECLIPSE
+# Aplicação da história ao Framework PyScript Game Jam V2
 # ============================================================
+
+from pyscript import web, when, window
+
+# ============================================================
+# CONFIGURAÇÃO GERAL
+# ============================================================
+
 CONFIG = {
     "titulo": "PROJETO ECLIPSE",
     "subtitulo": "Uma aventura de terror sci-fi",
     "autor": "Anna Beatriz",
     "icone": "🌑",
-    "capa": None, # Pode colocar "assets/imagens/capa.jpg" depois
-    "trilha_inicial": "assets/audios/tema_principal.mp3", 
+    "capa": None,
+    "trilha_inicial": "assets/audios/tema_principal.mp3",
     "volume_inicial": 0.5,
     "vida_inicial": 5,
     "pontos_iniciais": 0,
     "cena_inicial": "inicio",
 }
 
+
 # ============================================================
-# CENAS DO JOGO
+# ESTADO DO JOGO
 # ============================================================
+
+state = {
+    "vida": CONFIG["vida_inicial"],
+    "inventario": [],
+    "pontos": CONFIG["pontos_iniciais"],
+    "cena": CONFIG["cena_inicial"],
+}
+
+
+# ============================================================
+# CENAS / NÓS NARRATIVOS (HISTÓRIA DA ANNA BEATRIZ)
+# ============================================================
+
 SCENES = {
     "inicio": {
         "title": "O Despertar",
@@ -90,10 +112,10 @@ SCENES = {
         "title": "Acesso Negado",
         "image": "assets/imagens/porta_trancada.jpg",
         "text": (
-            "Você tenta forçar o painel da porta restrita sem o crachá.\n\n"
+            "Você tenta forçar o painel da porta sem a credencial ou chave correta.\n\n"
             "Uma descarga elétrica violenta atravessa seu braço! Você perdeu 1 vida."
         ),
-        "options": [("Recuar", "inicio")],
+        "options": [("Recuar", "corredor")],
     },
 
     "queda_escada": {
@@ -143,7 +165,7 @@ SCENES = {
         "text": (
             "CÓDIGO ADMINISTRADOR NECESSÁRIO.\n\n"
             "Instintivamente você digita 071984. Acesso concedido!\n"
-            "Você localizou a primeira parte do código de evacuação!"
+            "Você localizou a PRIMEIRA PARTE do código de evacuação!"
         ),
         "options": [("Voltar", "controle")],
     },
@@ -167,7 +189,7 @@ SCENES = {
         "title": "Sala 17",
         "text": (
             "Há uma maca e um monitor ligado: PACIENTE 07. MEMÓRIA: INCOMPLETA. IDENTIDADE: MATEUS ALMEIDA.\n\n"
-            "Debaixo da maca, você encontra um cartão com a Segunda Parte do Código de Evacuação!"
+            "Debaixo da maca, você encontra um cartão com a SEGUNDA PARTE do Código de Evacuação!"
         ),
         "options": [
             ("Pegar código e sair", "pegar_codigo2"),
@@ -225,7 +247,7 @@ SCENES = {
         "title": "Arquivo Subterrâneo",
         "text": (
             "Centenas de caixas. Várias possuem o nome 'Mateus Almeida'.\n\n"
-            "Você revira algumas caixas e encontra a Terceira Parte do Código!\n\n"
+            "Você revira algumas caixas e encontra a TERCEIRA PARTE do Código!\n\n"
             "No fundo da sala, há uma porta escrita: MEMÓRIAS ORIGINAIS."
         ),
         "options": [
@@ -359,12 +381,179 @@ SCENES = {
     },
 }
 
+
 # ============================================================
-# REGRAS E AÇÕES ESPECIAIS
+# ACESSO AO HTML
 # ============================================================
+
+def el(id_elemento):
+    return web.page[id_elemento]
+
+
+# ============================================================
+# IDENTIDADE VISUAL
+# ============================================================
+
+def configurar_identidade():
+    titulo = CONFIG["titulo"]
+    autor = CONFIG["autor"]
+    subtitulo = CONFIG["subtitulo"]
+
+    window.document.title = titulo
+    el("titulo-jogo").innerText = titulo
+    el("autor-jogo").innerText = f"Autor: {autor}"
+    el("titulo-abertura").innerText = titulo
+    el("subtitulo-abertura").innerText = subtitulo
+    el("autor-abertura").innerText = f"Criado por {autor}"
+    el("icone-abertura").innerText = CONFIG["icone"]
+
+    capa = CONFIG.get("capa")
+    if capa:
+        el("capa-jogo").src = capa
+        el("capa-jogo").style.display = "block"
+        el("icone-abertura").style.display = "none"
+    else:
+        el("capa-jogo").style.display = "none"
+        el("icone-abertura").style.display = "block"
+
+    audio = el("audio-fundo")
+    trilha = CONFIG.get("trilha_inicial")
+    audio.dataset.inicial = trilha if trilha else ""
+    audio.dataset.volume = str(CONFIG.get("volume_inicial", 0.5))
+
+
+# ============================================================
+# STATUS E INVENTÁRIO
+# ============================================================
+
+def atualizar_status():
+    vida = state["vida"]
+    if vida > 0:
+        el("vida").innerText = " ".join(["❤️"] * vida)
+        el("vida").classList.remove("danger")
+    else:
+        el("vida").innerText = "💀"
+        el("vida").classList.add("danger")
+
+    if state["inventario"]:
+        el("inventario").innerText = ", ".join(state["inventario"])
+    else:
+        el("inventario").innerText = "Vazio"
+
+    el("pontos").innerText = str(state["pontos"])
+
+
+def perder_vida(quantidade=1):
+    """Retira vida e retorna True se o jogador morreu."""
+    state["vida"] -= quantidade
+    if state["vida"] < 0:
+        state["vida"] = 0
+    atualizar_status()
+    return state["vida"] <= 0
+
+
+def adicionar_item(item, pontos=0):
+    if item not in state["inventario"]:
+        state["inventario"].append(item)
+        state["pontos"] += pontos
+    atualizar_status()
+
+
+def possui_item(item):
+    return item in state["inventario"]
+
+
+def ganhar_pontos(quantidade):
+    state["pontos"] += quantidade
+    atualizar_status()
+
+
+# ============================================================
+# MULTIMÍDIA
+# ============================================================
+
+def mostrar_imagem(caminho):
+    window.frameworkVideo.stop()
+    if not caminho:
+        window.frameworkImage.hide()
+        return
+    window.frameworkImage.show(caminho)
+
+def mostrar_video(caminho, autoplay=False):
+    if not caminho:
+        window.frameworkVideo.stop()
+        return
+    window.frameworkVideo.play(caminho, autoplay)
+
+def trocar_audio(caminho):
+    if caminho:
+        window.frameworkAudio.play(
+            caminho,
+            CONFIG.get("volume_inicial", 0.5),
+            True,
+        )
+
+def parar_audio():
+    window.frameworkAudio.stop()
+
+
+# ============================================================
+# BOTÕES E CENAS
+# ============================================================
+
+def configurar_botao(numero, texto="", ativo=False):
+    botao = el(f"opcao{numero}")
+    botao.innerText = texto
+    botao.disabled = not ativo
+    botao.style.display = "block" if ativo else "none"
+
+def opcoes_da_cena(nome, cena):
+    return list(cena.get("options", []))
+
+def atualizar_botoes(opcoes):
+    for i in range(1, 5):
+        if i <= len(opcoes):
+            configurar_botao(i, opcoes[i - 1][0], True)
+        else:
+            configurar_botao(i, "", False)
+
+def mostrar_cena(nome):
+    if nome not in SCENES:
+        el("titulo-cena").innerText = "Erro de cena"
+        el("texto-cena").innerText = f"A cena '{nome}' não existe em SCENES."
+        atualizar_botoes([])
+        return
+
+    state["cena"] = nome
+    cena = SCENES[nome]
+
+    el("titulo-cena").innerText = cena.get("title", nome)
+    el("texto-cena").innerText = cena.get("text", "")
+
+    video = cena.get("video")
+    if video:
+        mostrar_video(video, cena.get("video_autoplay", False))
+    else:
+        mostrar_imagem(cena.get("image"))
+
+    if "audio" in cena:
+        if cena["audio"]:
+            trocar_audio(cena["audio"])
+        else:
+            parar_audio()
+
+    if cena.get("stop_audio"):
+        parar_audio()
+
+    atualizar_botoes(opcoes_da_cena(nome, cena))
+    atualizar_status()
+
+
+# ============================================================
+# EXECUTAR AÇÃO (LÓGICA DA ANNA BEATRIZ)
+# ============================================================
+
 def executar_acao(acao):
-    
-    # ITENS DO ARMÁRIO
     if acao == "pegar_ferramentas":
         adicionar_item("lanterna")
         adicionar_item("chave")
@@ -378,13 +567,14 @@ def executar_acao(acao):
     elif acao == "ver_fotografia":
         mostrar_cena("armario_foto")
 
-    # PORTAS
     elif acao == "tentar_porta_restrita":
         if possui_item("crachá"):
             mostrar_cena("laboratorio")
         else:
             morreu = perder_vida(1)
-            if not morreu:
+            if morreu:
+                mostrar_cena("fim_ruim")
+            else:
                 mostrar_cena("porta_choque")
 
     elif acao == "tentar_porta_seguranca":
@@ -392,38 +582,41 @@ def executar_acao(acao):
             mostrar_cena("arquivo")
         else:
             morreu = perder_vida(1)
-            if not morreu:
+            if morreu:
+                mostrar_cena("fim_ruim")
+            else:
                 mostrar_cena("porta_choque")
 
-    # DESCER ESCADAS (Verifica Lanterna)
     elif acao == "descer_escadas":
         if possui_item("lanterna"):
             mostrar_cena("subsolo")
         else:
             morreu = perder_vida(1)
-            if not morreu:
+            if morreu:
+                mostrar_cena("fim_ruim")
+            else:
                 mostrar_cena("queda_escada")
 
-    # CÓDIGOS
     elif acao == "ativar_pc":
         adicionar_item("codigo1")
         mostrar_cena("ativar_pc")
-        
+
     elif acao == "pegar_codigo2":
         adicionar_item("codigo2")
         mostrar_cena("subsolo")
-        
+
     elif acao == "pegar_codigo3":
         adicionar_item("codigo3")
         mostrar_cena("subsolo")
 
-    # EVENTOS CRÍTICOS
     elif acao == "ligar_gerador":
         mostrar_cena("alarme")
 
     elif acao == "lutar_criatura":
         morreu = perder_vida(2)
-        if not morreu:
+        if morreu:
+            mostrar_cena("fim_ruim")
+        else:
             mostrar_cena("dano_criatura")
 
     elif acao == "tentar_desligar":
@@ -431,4 +624,62 @@ def executar_acao(acao):
             ganhar_pontos(100)
             mostrar_cena("fim_sacrificio")
         else:
-            mostrar_cena("nucleo") # Fica preso no núcleo se não tiver as 3 senhas
+            mostrar_cena("nucleo")
+
+    elif acao in SCENES:
+        mostrar_cena(acao)
+
+    else:
+        el("texto-cena").innerText = f"A ação '{acao}' não foi cadastrada."
+
+
+# ============================================================
+# EVENTOS DE CLIQUES E REINÍCIO
+# ============================================================
+
+def escolher_opcao(numero):
+    nome = state["cena"]
+    cena = SCENES[nome]
+    opcoes = opcoes_da_cena(nome, cena)
+    indice = numero - 1
+    if indice < len(opcoes):
+        executar_acao(opcoes[indice][1])
+
+@when("click", "#opcao1")
+def clicar_opcao1(event):
+    escolher_opcao(1)
+
+@when("click", "#opcao2")
+def clicar_opcao2(event):
+    escolher_opcao(2)
+
+@when("click", "#opcao3")
+def clicar_opcao3(event):
+    escolher_opcao(3)
+
+@when("click", "#opcao4")
+def clicar_opcao4(event):
+    escolher_opcao(4)
+
+@when("click", "#reiniciar")
+def reiniciar(event):
+    state["vida"] = CONFIG["vida_inicial"]
+    state["inventario"] = []
+    state["pontos"] = CONFIG["pontos_iniciais"]
+    state["cena"] = CONFIG["cena_inicial"]
+
+    trilha = CONFIG.get("trilha_inicial")
+    if trilha:
+        trocar_audio(trilha)
+
+    mostrar_cena(CONFIG["cena_inicial"])
+
+
+# ============================================================
+# INICIALIZAÇÃO
+# ============================================================
+
+configurar_identidade()
+mostrar_cena(CONFIG["cena_inicial"])
+el("botao-iniciar").disabled = False
+el("botao-iniciar").innerText = "▶ INICIAR JOGO"
