@@ -1,6 +1,5 @@
 # ============================================================
-# PROJETO ECLIPSE
-# Aplicação da história ao Framework PyScript Game Jam V2
+# PROJETO ECLIPSE - LÓGICA DINÂMICA E VALIDADA
 # ============================================================
 
 from pyscript import web, when, window
@@ -10,7 +9,7 @@ CONFIG = {
     "subtitulo": "Uma aventura de terror sci-fi",
     "autor": "Anna Beatriz",
     "icone": "🌑",
-    "capa": None,
+    "capa": "assets/imagens/capa.jfif",
     "trilha_inicial": "assets/audios/tema_principal.mp3",
     "volume_inicial": 0.5,
     "vida_inicial": 5,
@@ -23,10 +22,16 @@ state = {
     "inventario": [],
     "pontos": CONFIG["pontos_iniciais"],
     "cena": CONFIG["cena_inicial"],
+    # Flags de controle de eventos únicos
+    "armario_ferramentas_pego": False,
+    "armario_suprimentos_pego": False,
+    "computador_hackeado": False,
+    "codigo2_pego": False,
+    "codigo3_pego": False,
 }
 
 # ============================================================
-# CENAS NARRATIVAS
+# MAPA DE CENAS NARRATIVAS
 # ============================================================
 
 SCENES = {
@@ -38,326 +43,321 @@ SCENES = {
             "Você não sabe onde está e não consegue lembrar seu próprio nome. Há sangue nas suas mãos.\n\n"
             'Um som metálico ecoa: "PROTOCOLO DE CONTENÇÃO ATIVO. TEMPO ESTIMADO PARA COLAPSO: 47 MINUTOS."\n\n'
             'Uma porta à sua frente possui uma mensagem escrita com tinta vermelha:\n'
-            '"NÃO CONFIE NAQUELE QUE TEM O SEU ROSTO."'
+            '"NÃO CONFIE NAQUELE QUE TENHA O SEU ROSTO."'
         ),
-        "options": [
-            ("Investigar o corredor", "corredor"),
-            ("Abrir o armário de emergência", "armario"),
-            ("Examinar a porta restrita", "tentar_porta_restrita"),
-        ],
     },
 
     "armario": {
         "title": "Armário de Emergência",
         "image": "assets/imagens/armario.jpg",
-        "text": "Você abre o armário. Dentro existem suprimentos que podem salvar sua vida, além de uma fotografia antiga.",
-        "options": [
-            ("Pegar lanterna e chave", "pegar_ferramentas"),
-            ("Pegar kit médico e crachá", "pegar_suprimentos"),
-            ("Examinar fotografia", "ver_fotografia"),
-            ("Voltar", "inicio"),
-        ],
-    },
-
-    "armario_ferramentas": {
-        "title": "Ferramentas Obtidas",
-        "text": "Você pegou uma lanterna pesada e uma chave enferrujada.",
-        "options": [("Voltar", "armario")],
-    },
-
-    "armario_suprimentos": {
-        "title": "Suprimentos Obtidos",
-        "text": "Você pegou um kit médico e um crachá parcialmente queimado em nome do Dr. Mateus Almeida.",
-        "options": [("Voltar", "armario")],
+        "text": "O armário metálico range ao abrir. Prateleiras de metal oxidado guardam resquícios de equipamentos abandonados.",
     },
 
     "armario_foto": {
         "title": "A Fotografia",
+        "image": "assets/imagens/armario.jpg",
         "text": (
-            'Você pega a fotografia. Ela mostra um grupo de cientistas. No centro, está um homem com o seu rosto.\n\n'
-            'No verso está escrito: "Equipe Eclipse - Ano 2038. Dr. Mateus Almeida, Diretor do projeto."\n\n'
-            'Você sente uma forte dor de cabeça.'
+            'Você observa a foto empoeirada. Um grupo de pesquisadores sorri. No centro, o homem é idêntico a você.\n\n'
+            'No verso: "Equipe Eclipse - Ano 2038. Dr. Mateus Almeida."\n'
+            'Sua cabeça lateja com uma lembrança falsa.'
         ),
-        "options": [("Voltar", "armario")],
+        "options": [("Voltar ao armário", "armario")],
     },
 
     "corredor": {
         "title": "Corredor Principal",
         "image": "assets/imagens/corredor.jpg",
         "text": (
-            "As luzes piscam. Há três caminhos: Sala de Controle, Laboratórios Inferiores e Porta de Segurança.\n\n"
-            "Você escuta algo vindo do andar inferior... TOC. TOC. TOC. Como se alguma coisa batesse numa porta."
+            "As luzes de emergência estalam. Três rotas se abrem diante de você:\n"
+            "A Sala de Controle, a escadaria escura para os Laboratórios Inferiores e a Porta de Segurança trancada."
         ),
-        "options": [
-            ("Ir para Sala de Controle", "controle"),
-            ("Descer para os Laboratórios", "descer_escadas"),
-            ("Tentar abrir Porta de Segurança", "tentar_porta_seguranca"),
-            ("Voltar ao início", "inicio"),
-        ],
     },
 
     "porta_choque": {
-        "title": "Acesso Negado",
+        "title": "Descarga Elétrica!",
         "image": "assets/imagens/porta_trancada.jpg",
         "text": (
-            "Você tenta forçar o painel da porta sem a credencial ou chave correta.\n\n"
-            "Uma descarga elétrica violenta atravessa seu braço! Você perdeu 1 vida."
+            "Você tenta forçar o painel sem a autorização ou ferramenta adequada.\n"
+            "Faíscas azuis explodem em seu braço! Você perdeu 1 vida por descuido e recua tossindo fumaça."
         ),
-        "options": [("Recuar", "corredor")],
+        "options": [("Recuar para o corredor", "corredor")],
     },
 
     "queda_escada": {
-        "title": "Escuridão Perigosa",
+        "title": "Queda no Escuro",
+        "image": "assets/imagens/subsolo.jpg",
         "text": (
-            "Está escuro demais nos laboratórios inferiores. Sem uma lanterna, você tenta descer e escorrega!\n\n"
-            "Você rola pelos degraus e se machuca. Você perdeu 1 vida."
+            "Você tentou tatear a descida para o subsolo sem nenhuma fonte de luz.\n"
+            "O piso estava molhado de óleo; você escorregou e rolou escada abaixo no breu total. Perdeu 1 vida."
         ),
-        "options": [("Levantar e voltar", "corredor")],
+        "options": [("Levantar-se machucado", "corredor")],
     },
 
     "controle": {
         "title": "Sala de Controle",
         "image": "assets/imagens/sala_controle.jpg",
-        "text": (
-            "Dezenas de monitores desligados. Apenas um exibe: PROJETO ECLIPSE - STATUS CRÍTICO.\n\n"
-            "Você encontra arquivos e um terminal central."
-        ),
-        "options": [
-            ("Ler Relatório e Protocolo", "ler_arquivos"),
-            ("Ouvir Arquivo Pessoal", "ouvir_gravacao"),
-            ("Ativar Computador Central", "ativar_pc"),
-            ("Voltar ao corredor", "corredor"),
-        ],
+        "text": "Monitores cinzentos cercam a sala. Apenas um terminal central permanece ativo emitindo um zumbido abafado.",
     },
 
     "ler_arquivos": {
-        "title": "Arquivos do Projeto",
+        "title": "Arquivos Confidenciais",
+        "image": "assets/imagens/sala_controle.jpg",
         "text": (
-            "RELATÓRIO: O Projeto Eclipse estuda transferência de consciência. O problema surgiu quando as cópias começaram a acreditar que eram as originais.\n\n"
-            "PROTOCOLO DE EVACUAÇÃO: Para fugir, encontre as 3 partes do código de segurança (Setor Médico, Laboratório e Arquivo) e insira no Núcleo."
+            "RELATÓRIO: A transferência de mente gera réplicas perfeitas que herdam falsas memórias do original.\n"
+            "AVISO: A única forma de desativar o complexo é reunir as 3 partes do código de segurança."
         ),
-        "options": [("Voltar", "controle")],
+        "options": [("Fechar arquivos", "controle")],
     },
 
     "ouvir_gravacao": {
-        "title": "Gravação Pessoal",
+        "title": "Registro de Áudio #07",
+        "image": "assets/imagens/sala_controle.jpg",
         "text": (
-            '"Se está ouvindo isso, eu falhei. O Eclipse cria cópias. Se meu experimento funcionar, uma cópia acordará sem memórias acreditando ser o Mateus. Mas o verdadeiro Mateus estará morto."\n\n'
-            "Você olha para as suas mãos em choque."
+            '"Se você está ouvindo isso, o procedimento funcionou mal. Eu criei uma cópia exata de mim mesmo...\n'
+            'Mas se ela descobrir a verdade, o laboratório inteiro cairá."'
         ),
-        "options": [("Voltar", "controle")],
+        "options": [("Desligar áudio", "controle")],
     },
 
     "ativar_pc": {
-        "title": "Computador Central",
-        "text": (
-            "CÓDIGO ADMINISTRADOR NECESSÁRIO.\n\n"
-            "Instintivamente você digita 071984. Acesso concedido!\n"
-            "Você localizou a PRIMEIRA PARTE do código de evacuação!"
-        ),
-        "options": [("Voltar", "controle")],
+        "title": "Terminal Hackeado",
+        "image": "assets/imagens/sala_controle.jpg",
+        "text": "Você digita impulsivamente a sequência numérica 071984. Acesso concedido! A PRIMEIRA PARTE DO CÓDIGO foi descarregada.",
+        "options": [("Voltar à sala de controle", "controle")],
     },
 
     "subsolo": {
         "title": "Laboratórios Inferiores",
         "image": "assets/imagens/subsolo.jpg",
-        "text": (
-            "O ar é gélido. As paredes estão cobertas de arranhões feitos por unhas.\n\n"
-            "Sua lanterna ilumina uma placa: 'SETOR MÉDICO - SALA 17' e outra 'LABORATÓRIO PRINCIPAL'."
-        ),
-        "options": [
-            ("Entrar na Sala 17", "sala17"),
-            ("Entrar no Laboratório Principal", "laboratorio"),
-            ("Seguir para o Arquivo", "arquivo"),
-            ("Subir", "corredor"),
-        ],
+        "text": "O ar aqui embaixo é pesado e cheira a ozônio queimado. Marcas de unhas profundas arranham as paredes de aço reforçado.",
     },
 
     "sala17": {
-        "title": "Sala 17",
-        "text": (
-            "Há uma maca e um monitor ligado: PACIENTE 07. MEMÓRIA: INCOMPLETA. IDENTIDADE: MATEUS ALMEIDA.\n\n"
-            "Debaixo da maca, você encontra um cartão com a SEGUNDA PARTE do Código de Evacuação!"
-        ),
-        "options": [("Pegar código e sair", "pegar_codigo2")],
+        "title": "Sala 17 - Isolamento",
+        "image": "assets/imagens/subsolo.jpg",
+        "text": "Uma maca cirúrgica abandonada. No visor médico pisca: PACIENTE 07 - CÓPIA ATIVA.\nVocê vasculha o chão e acha a SEGUNDA PARTE DO CÓDIGO de segurança.",
     },
 
     "laboratorio": {
         "title": "Laboratório Principal",
         "image": "assets/imagens/laboratorio_principal.jpg",
-        "text": (
-            "Uma máquina gigantesca exibe: 'ENERGIA 23%'.\n"
-            "Ao tocar nela, centenas de rostos iguais ao seu aparecem na tela. O laboratório produziu várias cópias de você.\n\n"
-            "Vasculhando o local, você acha um mapa que revela uma passagem secreta."
-        ),
-        "options": [
-            ("Ir para Passagem Secreta", "arquivo"),
-            ("Ir para o Gerador", "gerador"),
-            ("Sair", "subsolo"),
-        ],
+        "text": "Tanques de clonagem vazios estourados. Rostos idênticos ao seu formam mosaicos nas telas quebradas.",
     },
 
     "gerador": {
         "title": "Sala do Gerador",
-        "text": "O enorme motor está desligado. Uma alavanca indica: REINICIALIZAÇÃO MANUAL.",
-        "options": [("Ligar o gerador", "ligar_gerador"), ("Voltar", "laboratorio")],
+        "image": "assets/imagens/gerador.jpg",
+        "text": "O motor auxiliar está estagnado. Uma alavanca pesada de emergência aguarda para ser acionada.",
     },
 
     "alarme": {
-        "title": "Alarme Disparado!",
+        "title": "Alarme Geral Disparado!",
         "image": "assets/imagens/alarme.jpg",
         "audio": "assets/audios/alarme.mp3",
-        "text": (
-            "As luzes acendem, mas as portas bloqueiam! Uma voz anuncia: CONTENÇÃO DE PACIENTE 07.\n\n"
-            "Passos rápidos ecoam. Uma criatura com o SEU ROSTO aparece no corredor!"
-        ),
+        "text": "Luzes estroboscópicas vermelhas cegam você. Passos pesados ecoam correndo em sua direção... É uma criatura com o seu próprio rosto!",
         "options": [
-            ("Correr para o Túnel de Manutenção", "tunel"),
-            ("Enfrentar a criatura", "lutar_criatura"),
+            ("Disparar para o Túnel de Manutenção", "tunel"),
+            ("Enfrentar o monstro de frente", "lutar_criatura"),
         ],
     },
 
     "dano_criatura": {
-        "title": "Luta Brutal",
-        "text": (
-            "Você tenta lutar com as próprias mãos contra a cópia monstruosa.\n"
-            "Ela é mais forte. Você é arremessado contra a parede e perde 2 vidas, mas consegue fugir rastejando para o túnel."
-        ),
-        "options": [("Rastejar para o túnel", "tunel")],
+        "title": "Confronto Brutal",
+        "image": "assets/imagens/alarme.jpg",
+        "text": "Você tenta conter sua cópia irracional, mas ela é implacável. Você é jogado contra o painel e perde 2 vidas preciosas antes de escapar.",
+        "options": [("Arrastar-se para o túnel", "tunel")],
     },
 
     "arquivo": {
-        "title": "Arquivo Subterrâneo",
-        "text": (
-            "Centenas de caixas. Várias possuem o nome 'Mateus Almeida'.\n\n"
-            "Você revira algumas caixas e encontra a TERCEIRA PARTE do Código!\n\n"
-            "No fundo da sala, há uma porta escrita: MEMÓRIAS ORIGINAIS."
-        ),
-        "options": [
-            ("Entrar em Memórias Originais", "memorias"),
-            ("Pegar código e sair", "pegar_codigo3"),
-        ],
+        "title": "Arquivo Morto",
+        "image": "assets/imagens/arquivo.jpg",
+        "text": "Milhares de fichas de pacientes. Vasculhando a seção principal, você encontra a TERCEIRA PARTE DO CÓDIGO.",
     },
 
     "memorias": {
-        "title": "Memórias Originais",
-        "text": (
-            "Dezenas de cápsulas. Uma delas diz: MATEUS ALMEIDA - ORIGINAL - STATUS: VIVO.\n\n"
-            "O homem dentro da cápsula abre os olhos. Ele é o verdadeiro. Ele diz: 'Eu sou Mateus. Você é só uma cópia minha.'"
-        ),
+        "title": "Câmara de Memórias",
+        "image": "assets/imagens/memorias.jpg",
+        "text": "Uma cápsula central exibe o verdadeiro Dr. Mateus Almeida em animação suspensa. Ele desperta e sussurra: 'Você é apenas uma cópia...'",
         "options": [
-            ("Ajudar o verdadeiro Mateus", "fuga_dupla"),
-            ("Abandoná-lo", "fim_egoista"),
-            ("Ir para o Núcleo destruir tudo", "nucleo"),
+            ("Libertar e ajudar o verdadeiro criador", "fuga_dupla"),
+            ("Abandoná-lo à própria sorte", "fim_egoista"),
+            ("Seguir direto para o Núcleo", "nucleo"),
         ],
     },
 
     "tunel": {
-        "title": "Túnel de Manutenção",
-        "text": "É apertado e escuro. Você encontra três portas.",
+        "title": "Túnel de Ventilação",
+        "image": "assets/imagens/tunel.jpg",
+        "text": "Um duto claustrofóbico que se divide em três tubulações de escape.",
         "options": [
-            ("Porta Azul (Superfície)", "saida_falsa"),
-            ("Porta Vermelha (Núcleo)", "nucleo"),
-            ("Porta Preta (Secreta)", "sala_secreta"),
+            ("Tomar o duto azul (Superfície)", "saida_falsa"),
+            ("Tomar o duto vermelho (Núcleo Central)", "nucleo"),
+            ("Tomar o duto preto (Sala Oculta)", "sala_secreta"),
         ],
     },
 
     "sala_secreta": {
-        "title": "Sala Secreta",
-        "text": (
-            "Você encontra uma cadeira conectada a cabos. Um espelho reflete seu rosto. O reflexo sorri (você não).\n"
-            "'Deseja ter todas as suas memórias de volta?'"
-        ),
+        "title": "Laboratório Clandestino",
+        "image": "assets/imagens/sala_secreta.jpg",
+        "text": "Uma cadeira com eletrodos e um espelho intrigante. O seu reflexo sorri sozinho e pergunta: 'Deseja recuperar tudo o que perdeu?'",
         "options": [
-            ("Aceitar a conexão", "final_memorias"),
-            ("Quebrar o espelho e fugir", "saida_falsa"),
+            ("Conectar-se à máquina de memórias", "final_memorias"),
+            ("Destruir o espelho e fugir", "saida_falsa"),
         ],
     },
 
     "nucleo": {
-        "title": "Núcleo Eclipse",
+        "title": "Núcleo do Reator",
         "image": "assets/imagens/nucleo.jpg",
-        "text": (
-            "Um enorme reator pulsa. O monitor exibe: 847 CONSCIÊNCIAS CONECTADAS.\n"
-            "O sistema exige as 3 partes do código de evacuação para desativação segura."
-        ),
+        "text": "O reator pulsa energia pura. O console principal aguarda o código completo de evacuação para desligamento seguro.",
         "options": [
-            ("Inserir o código de evacuação", "tentar_desligar"),
-            ("Desligar puxando os cabos à força", "nucleo_perigoso"),
-            ("Libertar todas as consciências", "fim_libertador"),
+            ("Digitar as 3 partes do código de segurança", "tentar_desligar"),
+            ("Desconectar os cabos principais à força", "nucleo_perigoso"),
+            ("Transmitir o sinal para toda a rede", "fim_libertador"),
         ],
     },
 
     "nucleo_perigoso": {
-        "title": "Sobrecarga!",
-        "text": (
-            "Você puxa os cabos ignorando o sistema. O núcleo sobrecarrega!\n"
-            "O laboratório treme violentamente e você é atingido por destroços. Você perde 2 vidas."
-        ),
-        "options": [("Tentar fugir da explosão", "tunel")],
+        "title": "Colapso Imediato!",
+        "image": "assets/imagens/nucleo.jpg",
+        "text": "Ao arrancar os cabos principais, o núcleo entra em fusão descontrolada! Você é soterrado por destroços ardentes e perde 2 vidas.",
+        "options": [("Tentar escapar pelos escombros", "tunel")],
     },
 
     "fuga_dupla": {
         "title": "FINAL: A VERDADEIRA FUGA",
         "image": "assets/imagens/final_bom.jpg",
-        "text": "Você ajuda o verdadeiro Mateus a fugir. O laboratório explode atrás de vocês.\nSua origem como cópia não determina quem você é. Suas escolhas sim.\n\nFINAL BOM.",
+        "text": "Você e o verdadeiro criador escapam segundos antes da detonação total. Sua identidade é artificial, mas sua escolha foi genuína.\n\nFINAL BOM.",
         "options": [],
     },
     
     "fim_egoista": {
         "title": "FINAL: O SOBREVIVENTE",
-        "text": "Você foge sozinho e reconstrói sua vida. Meses depois, alguém bate na sua porta. É o verdadeiro Mateus, e ele não está feliz.\n\nFINAL RUIM.",
+        "image": "assets/imagens/final_ruim.jpg",
+        "text": "Você foge sozinho para o mundo exterior. Meses mais tarde, alguém bate à sua porta... É o verdadeiro Mateus cobrando contas.\n\nFINAL RUIM.",
         "options": [],
     },
 
     "saida_falsa": {
-        "title": "FINAL: O EXÉRCITO DE CÓPIAS",
-        "text": "Você sai na floresta. Acha que conseguiu, mas dezenas de pessoas estão lá fora. Todas com o seu rosto.\n'Bem-vindo de volta, Paciente 07'. O laboratório não acabou... Ele apenas começou.\n\nFINAL RUIM.",
+        "title": "FINAL: EXÉRCITO DE CÓPIAS",
+        "image": "assets/imagens/final_ruim.jpg",
+        "text": "Você emerge na floresta exterior. Mas ao olhar ao redor, centenas de pessoas com o seu rosto te encaram em silêncio absoluto.\n\nFINAL RUIM.",
         "options": [],
     },
 
     "fim_sacrificio": {
         "title": "FINAL: O SACRIFÍCIO",
-        "text": "O código funciona. As 847 consciências são apagadas, incluindo a sua. Você morre, mas liberta o mundo dessa maldição.\n\nFINAL HERÓICO.",
+        "image": "assets/imagens/final_sacrificio.jpg",
+        "text": "O código é aceito. O complexo inteiro é purgado, apagando todas as consciências sintéticas — incluindo a sua. Você salvou o mundo.\n\nFINAL HERÓICO.",
         "options": [],
     },
 
     "final_memorias": {
-        "title": "FINAL SECRETO: TODAS AS MEMÓRIAS",
-        "text": "Você absorve as memórias de todas as cópias mortas antes de você. Você lembra de morrer 12 vezes. Você aceita seu destino e desliga a máquina por dentro.\n\nFINAL SECRETO.",
+        "title": "FINAL SECRETO: CONSCIÊNCIA TOTAL",
+        "image": "assets/imagens/final_sacrificio.jpg",
+        "text": "Você absorve o eco de todas as cópias que vieram antes. Você lembra de cada morte e desliga o sistema por dentro com sabedoria absoluta.\n\nFINAL SECRETO.",
         "options": [],
     },
 
     "fim_libertador": {
         "title": "FINAL: O LIBERTADOR",
-        "text": "Você sobrecarrega o sistema enviando os dados para a rede. Centenas de cópias acordam pelo mundo.\nVocê não sabe se é humano, mas sabe que está vivo.\n\nFINAL BOM ALTERNATIVO.",
+        "image": "assets/imagens/final_bom.jpg",
+        "text": "Você transmite os dados para a internet global. Milhares de cópias despertam simultaneamente. O mundo nunca mais será o mesmo.\n\nFINAL BOM ALTERNATIVO.",
         "options": [],
     },
 
     "fim_ruim": {
         "title": "GAME OVER",
         "image": "assets/imagens/game_over.jpg",
-        "text": "Seu corpo não resiste aos ferimentos. A escuridão toma conta. O Projeto Eclipse fará uma nova cópia amanhã.",
+        "text": "Seu corpo cede aos ferimentos e à exaustão. A escuridão te consome. O Projeto Eclipse reiniciará o ciclo amanhã.",
         "options": [],
     },
 }
 
 # ============================================================
-# LÓGICA DO MOTOR
+# VALIDAÇÃO DINÂMICA DE OPÇÕES (INTELIGÊNCIA DE ESTADO)
 # ============================================================
 
-def el(id_elemento):
-    return web.page[id_elemento]
+def opcoes_da_cena(nome, cena):
+    """Gera as opções de forma dinâmica com base no que já foi pego ou feito."""
+    opcoes = []
+
+    if nome == "inicio":
+        opcoes = [
+            ("Investigar o corredor principal", "corredor"),
+            ("Vasculhar o armário de emergência", "armario"),
+            ("Forçar a porta restrita à força", "tentar_porta_restrita"),
+        ]
+
+    elif nome == "armario":
+        # Se ainda não pegou as ferramentas, exibe a opção. Se já pegou, oculta!
+        if not state["armario_ferramentas_pego"]:
+            opcoes.append(("Pegar a lanterna pesada e a chave", "pegar_ferramentas"))
+        
+        if not state["armario_suprimentos_pego"]:
+            opcoes.append(("Pegar o kit médico e o crachá", "pegar_suprimentos"))
+            
+        opcoes.append(("Examinar a fotografia antiga", "ver_fotografia"))
+        opcoes.append(("Voltar ao laboratório", "inicio"))
+
+    elif nome == "corredor":
+        opcoes = [
+            ("Ir para a Sala de Controle", "controle"),
+            ("Descer para os Laboratórios Inferiores", "descer_escadas"),
+            ("Tentar abrir a Porta de Segurança", "tentar_porta_seguranca"),
+            ("Voltar à sala inicial", "inicio"),
+        ]
+
+    elif nome == "controle":
+        opcoes = [
+            ("Ler os relatórios do projeto", "ler_arquivos"),
+            ("Ouvir o diário de áudio corrompido", "ouvir_gravacao"),
+        ]
+        # O terminal só pode ser hackeado uma vez
+        if not state["computador_hackeado"]:
+            opcoes.append(("Hackear o terminal central", "ativar_pc"))
+        opcoes.append(("Retornar ao corredor", "corredor"))
+
+    elif nome == "subsolo":
+        opcoes = []
+        if not state["codigo2_pego"]:
+            opcoes.append(("Investigar a Sala 17 (Setor Médico)", "sala17"))
+        opcoes.extend([
+            ("Avançar para o Laboratório Principal", "laboratorio"),
+        ])
+        if not state["codigo3_pego"]:
+            opcoes.append(("Examinar o Arquivo Subterrâneo", "arquivo"))
+        opcoes.append(("Retornar ao andar superior", "corredor"))
+
+    elif nome == "sala17":
+        opcoes = [("Guardar código e sair", "pegar_codigo2")]
+
+    elif nome == "arquivo":
+        opcoes = [
+            ("Acessar o terminal de Memórias Originais", "memorias"),
+            ("Pegar código e retornar aos laboratórios", "pegar_codigo3"),
+        ]
+
+    # Se a cena já tiver opções fixas cadastradas no dicionário e não tratadas acima, usa elas
+    elif "options" in cena:
+        opcoes = list(cena["options"])
+
+    return opcoes
+
+# ============================================================
+# MOTOR DE EXECUÇÃO
+# ============================================================
+
+def el(id_elem):
+    return web.page[id_elem]
 
 def configurar_identidade():
     window.document.title = CONFIG["titulo"]
     el("titulo-abertura").innerText = CONFIG["titulo"]
     el("titulo-jogo").innerText = CONFIG["titulo"]
     el("autor-jogo").innerText = f"Autor: {CONFIG['autor']}"
-    
     audio = el("audio-fundo")
     audio.dataset.inicial = CONFIG.get("trilha_inicial", "")
-    audio.dataset.volume = str(CONFIG.get("volume_inicial", 0.5))
 
 def atualizar_status():
     vida = state["vida"]
@@ -368,27 +368,33 @@ def atualizar_status():
         el("vida").innerText = "💀"
         el("vida").classList.add("danger")
 
-    el("inventario").innerText = ", ".join(state["inventario"]) if state["inventario"] else "Vazio"
+    qtd = len(state["inventario"])
+    el("inventario").innerText = f"{qtd} itens" if qtd > 0 else "Vazio"
+    
+    lista_html = ""
+    if qtd > 0:
+        for item in state["inventario"]:
+            lista_html += f"<li>📦 {item}</li>"
+    else:
+        lista_html = "<li>Nenhum item coletado ainda.</li>"
+    
+    web.page["lista-itens"].innerHTML = lista_html
     el("pontos").innerText = str(state["pontos"])
 
-def perder_vida(quantidade=1):
-    state["vida"] -= quantidade
+def perder_vida(qtd=1):
+    state["vida"] -= qtd
     if state["vida"] < 0: state["vida"] = 0
     atualizar_status()
     return state["vida"] <= 0
 
-def adicionar_item(item, pontos=0):
+def adicionar_item(item, pts=0):
     if item not in state["inventario"]:
         state["inventario"].append(item)
-        state["pontos"] += pontos
+        state["pontos"] += pts
     atualizar_status()
 
 def possui_item(item):
     return item in state["inventario"]
-
-def ganhar_pontos(quantidade):
-    state["pontos"] += quantidade
-    atualizar_status()
 
 def atualizar_botoes(opcoes):
     for i in range(1, 5):
@@ -408,7 +414,6 @@ def mostrar_cena(nome):
     el("titulo-cena").innerText = cena.get("title", nome)
     el("texto-cena").innerText = cena.get("text", "")
 
-    # Controle de Mídia via JS
     video = cena.get("video")
     img = cena.get("image")
     
@@ -427,52 +432,108 @@ def mostrar_cena(nome):
     elif cena.get("stop_audio"):
         window.frameworkAudio.stop()
 
-    atualizar_botoes(cena.get("options", []))
+    # Puxa as opções validadas dinamicamente
+    atualizar_botoes(opcoes_da_cena(nome, cena))
     atualizar_status()
 
 def executar_acao(acao):
     if acao == "pegar_ferramentas":
-        adicionar_item("lanterna"); adicionar_item("chave"); mostrar_cena("armario_ferramentas")
-    elif acao == "pegar_suprimentos":
-        adicionar_item("kit médico"); adicionar_item("crachá"); mostrar_cena("armario_suprimentos")
-    elif acao == "ver_fotografia": mostrar_cena("armario_foto")
-    elif acao == "tentar_porta_restrita":
-        mostrar_cena("laboratorio") if possui_item("crachá") else mostrar_cena("fim_ruim") if perder_vida(1) else mostrar_cena("porta_choque")
-    elif acao == "tentar_porta_seguranca":
-        mostrar_cena("arquivo") if possui_item("chave") else mostrar_cena("fim_ruim") if perder_vida(1) else mostrar_cena("porta_choque")
-    elif acao == "descer_escadas":
-        mostrar_cena("subsolo") if possui_item("lanterna") else mostrar_cena("fim_ruim") if perder_vida(1) else mostrar_cena("queda_escada")
-    elif acao == "ativar_pc":
-        adicionar_item("codigo1"); mostrar_cena("ativar_pc")
-    elif acao == "pegar_codigo2":
-        adicionar_item("codigo2"); mostrar_cena("subsolo")
-    elif acao == "pegar_codigo3":
-        adicionar_item("codigo3"); mostrar_cena("subsolo")
-    elif acao == "ligar_gerador": mostrar_cena("alarme")
-    elif acao == "lutar_criatura":
-        mostrar_cena("fim_ruim") if perder_vida(2) else mostrar_cena("dano_criatura")
-    elif acao == "tentar_desligar":
-        if possui_item("codigo1") and possui_item("codigo2") and possui_item("codigo3"):
-            ganhar_pontos(100); mostrar_cena("fim_sacrificio")
-        else: mostrar_cena("nucleo")
-    elif acao in SCENES: mostrar_cena(acao)
+        if not state["armario_ferramentas_pego"]:
+            adicionar_item("Lanterna pesada")
+            adicionar_item("Chave enferrujada")
+            state["armario_ferramentas_pego"] = True
+        mostrar_cena("armario_ferramentas")
 
-def escolher_opcao(numero):
-    opcoes = SCENES[state["cena"]].get("options", [])
-    if (numero - 1) < len(opcoes): executar_acao(opcoes[numero - 1][1])
+    elif acao == "pegar_suprimentos":
+        if not state["armario_suprimentos_pego"]:
+            adicionar_item("Kit médico")
+            adicionar_item("Crachá do Dr. Mateus")
+            state["armario_suprimentos_pego"] = True
+        mostrar_cena("armario_suprimentos")
+
+    elif acao == "ver_fotografia":
+        mostrar_cena("armario_foto")
+
+    elif acao == "tentar_porta_restrita":
+        if possui_item("Crachá do Dr. Mateus"):
+            mostrar_cena("laboratorio")
+        else:
+            morreu = perder_vida(1)
+            mostrar_cena("fim_ruim") if morreu else mostrar_cena("porta_choque")
+
+    elif acao == "tentar_porta_seguranca":
+        if possui_item("Chave enferrujada"):
+            mostrar_cena("arquivo")
+        else:
+            morreu = perder_vida(1)
+            mostrar_cena("fim_ruim") if morreu else mostrar_cena("porta_choque")
+
+    elif acao == "descer_escadas":
+        if possui_item("Lanterna pesada"):
+            mostrar_cena("subsolo")
+        else:
+            morreu = perder_vida(1)
+            mostrar_cena("fim_ruim") if morreu else mostrar_cena("queda_escada")
+
+    elif acao == "ativar_pc":
+        if not state["computador_hackeado"]:
+            adicionar_item("Código de Acesso #1", 10)
+            state["computador_hackeado"] = True
+        mostrar_cena("ativar_pc")
+
+    elif acao == "pegar_codigo2":
+        if not state["codigo2_pego"]:
+            adicionar_item("Código de Acesso #2", 10)
+            state["codigo2_pego"] = True
+        mostrar_cena("subsolo")
+
+    elif acao == "pegar_codigo3":
+        if not state["codigo3_pego"]:
+            adicionar_item("Código de Acesso #3", 10)
+            state["codigo3_pego"] = True
+        mostrar_cena("subsolo")
+
+    elif acao == "ligar_gerador":
+        mostrar_cena("alarme")
+
+    elif acao == "lutar_criatura":
+        morreu = perder_vida(2)
+        mostrar_cena("fim_ruim") if morreu else mostrar_cena("dano_criatura")
+
+    elif acao == "tentar_desligar":
+        if possui_item("Código de Acesso #1") and possui_item("Código de Acesso #2") and possui_item("Código de Acesso #3"):
+            state["pontos"] += 50
+            mostrar_cena("fim_sacrificio")
+        else:
+            mostrar_cena("nucleo")
+
+    elif acao in SCENES:
+        mostrar_cena(acao)
+
+def escolher_opcao(num):
+    opcoes = opcoes_da_cena(state["cena"], SCENES[state["cena"]])
+    if (num - 1) < len(opcoes):
+        executar_acao(opcoes[num - 1][1])
 
 @when("click", "#opcao1")
-def clicar_1(e): escolher_opcao(1)
+def c1(e): escolher_opcao(1)
 @when("click", "#opcao2")
-def clicar_2(e): escolher_opcao(2)
+def c2(e): escolher_opcao(2)
 @when("click", "#opcao3")
-def clicar_3(e): escolher_opcao(3)
+def c3(e): escolher_opcao(3)
 @when("click", "#opcao4")
-def clicar_4(e): escolher_opcao(4)
+def c4(e): escolher_opcao(4)
 
 @when("click", "#reiniciar")
 def reiniciar(e):
-    state["vida"] = CONFIG["vida_inicial"]; state["inventario"] = []; state["pontos"] = CONFIG["pontos_iniciais"]
+    state["vida"] = CONFIG["vida_inicial"]
+    state["inventario"] = []
+    state["pontos"] = CONFIG["pontos_iniciais"]
+    state["armario_ferramentas_pego"] = False
+    state["armario_suprimentos_pego"] = False
+    state["computador_hackeado"] = False
+    state["codigo2_pego"] = False
+    state["codigo3_pego"] = False
     trilha = CONFIG.get("trilha_inicial")
     if trilha: window.frameworkAudio.play(trilha)
     mostrar_cena(CONFIG["cena_inicial"])
