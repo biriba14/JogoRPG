@@ -37,7 +37,7 @@ state = {
 SCENES = {
     "inicio": {
         "title": "O Despertar",
-        "image": "assets/imagens/laboratorio_inicio.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": (
             "Você acorda deitado no chão frio de um laboratório. Sua cabeça dói. Uma luz vermelha pisca no teto.\n\n"
             "Você não sabe onde está e não consegue lembrar seu próprio nome. Há sangue nas suas mãos.\n\n"
@@ -49,13 +49,13 @@ SCENES = {
 
     "armario": {
         "title": "Armário de Emergência",
-        "image": "assets/imagens/armario.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "O armário metálico range ao abrir. Prateleiras de metal oxidado guardam resquícios de equipamentos abandonados.",
     },
 
     "armario_foto": {
         "title": "A Fotografia",
-        "image": "assets/imagens/armario.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": (
             'Você observa a foto empoeirada. Um grupo de pesquisadores sorri. No centro, o homem é idêntico a você.\n\n'
             'No verso: "Equipe Eclipse - Ano 2038. Dr. Mateus Almeida."\n'
@@ -66,7 +66,7 @@ SCENES = {
 
     "corredor": {
         "title": "Corredor Principal",
-        "image": "assets/imagens/corredor.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": (
             "As luzes de emergência estalam. Três rotas se abrem diante de você:\n"
             "A Sala de Controle, a escadaria escura para os Laboratórios Inferiores e a Porta de Segurança trancada."
@@ -75,7 +75,7 @@ SCENES = {
 
     "porta_choque": {
         "title": "Descarga Elétrica!",
-        "image": "assets/imagens/porta_trancada.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": (
             "Você tenta forçar o painel sem a autorização ou ferramenta adequada.\n"
             "Faíscas azuis explodem em seu braço! Você perdeu 1 vida por descuido e recua tossindo fumaça."
@@ -85,7 +85,7 @@ SCENES = {
 
     "queda_escada": {
         "title": "Queda no Escuro",
-        "image": "assets/imagens/subsolo.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": (
             "Você tentou tatear a descida para o subsolo sem nenhuma fonte de luz.\n"
             "O piso estava molhado de óleo; você escorregou e rolou escada abaixo no breu total. Perdeu 1 vida."
@@ -95,13 +95,13 @@ SCENES = {
 
     "controle": {
         "title": "Sala de Controle",
-        "image": "assets/imagens/sala_controle.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Monitores cinzentos cercam a sala. Apenas um terminal central permanece ativo emitindo um zumbido abafado.",
     },
 
     "ler_arquivos": {
         "title": "Arquivos Confidenciais",
-        "image": "assets/imagens/sala_controle.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": (
             "RELATÓRIO: A transferência de mente gera réplicas perfeitas que herdam falsas memórias do original.\n"
             "AVISO: A única forma de desativar o complexo é reunir as 3 partes do código de segurança."
@@ -111,7 +111,7 @@ SCENES = {
 
     "ouvir_gravacao": {
         "title": "Registro de Áudio #07",
-        "image": "assets/imagens/sala_controle.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": (
             '"Se você está ouvindo isso, o procedimento funcionou mal. Eu criei uma cópia exata de mim mesmo...\n'
             'Mas se ela descobrir a verdade, o laboratório inteiro cairá."'
@@ -121,38 +121,38 @@ SCENES = {
 
     "ativar_pc": {
         "title": "Terminal Hackeado",
-        "image": "assets/imagens/sala_controle.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Você digita impulsivamente a sequência numérica 071984. Acesso concedido! A PRIMEIRA PARTE DO CÓDIGO foi descarregada.",
         "options": [("Voltar à sala de controle", "controle")],
     },
 
     "subsolo": {
         "title": "Laboratórios Inferiores",
-        "image": "assets/imagens/subsolo.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "O ar aqui embaixo é pesado e cheira a ozônio queimado. Marcas de unhas profundas arranham as paredes de aço reforçado.",
     },
 
     "sala17": {
         "title": "Sala 17 - Isolamento",
-        "image": "assets/imagens/subsolo.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Uma maca cirúrgica abandonada. No visor médico pisca: PACIENTE 07 - CÓPIA ATIVA.\nVocê vasculha o chão e acha a SEGUNDA PARTE DO CÓDIGO de segurança.",
     },
 
     "laboratorio": {
         "title": "Laboratório Principal",
-        "image": "assets/imagens/laboratorio_principal.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Tanques de clonagem vazios estourados. Rostos idênticos ao seu formam mosaicos nas telas quebradas.",
     },
 
     "gerador": {
         "title": "Sala do Gerador",
-        "image": "assets/imagens/gerador.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "O motor auxiliar está estagnado. Uma alavanca pesada de emergência aguarda para ser acionada.",
     },
 
     "alarme": {
         "title": "Alarme Geral Disparado!",
-        "image": "assets/imagens/alarme.jpg",
+        "image": "assets/imagens/capa.jfif",
         "audio": "assets/audios/alarme.mp3",
         "text": "Luzes estroboscópicas vermelhas cegam você. Passos pesados ecoam correndo em sua direção... É uma criatura com o seu próprio rosto!",
         "options": [
@@ -163,20 +163,20 @@ SCENES = {
 
     "dano_criatura": {
         "title": "Confronto Brutal",
-        "image": "assets/imagens/alarme.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Você tenta conter sua cópia irracional, mas ela é implacável. Você é jogado contra o painel e perde 2 vidas preciosas antes de escapar.",
         "options": [("Arrastar-se para o túnel", "tunel")],
     },
 
     "arquivo": {
         "title": "Arquivo Morto",
-        "image": "assets/imagens/arquivo.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Milhares de fichas de pacientes. Vasculhando a seção principal, você encontra a TERCEIRA PARTE DO CÓDIGO.",
     },
 
     "memorias": {
         "title": "Câmara de Memórias",
-        "image": "assets/imagens/memorias.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Uma cápsula central exibe o verdadeiro Dr. Mateus Almeida em animação suspensa. Ele desperta e sussurra: 'Você é apenas uma cópia...'",
         "options": [
             ("Libertar e ajudar o verdadeiro criador", "fuga_dupla"),
@@ -187,7 +187,7 @@ SCENES = {
 
     "tunel": {
         "title": "Túnel de Ventilação",
-        "image": "assets/imagens/tunel.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Um duto claustrofóbico que se divide em três tubulações de escape.",
         "options": [
             ("Tomar o duto azul (Superfície)", "saida_falsa"),
@@ -198,7 +198,7 @@ SCENES = {
 
     "sala_secreta": {
         "title": "Laboratório Clandestino",
-        "image": "assets/imagens/sala_secreta.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Uma cadeira com eletrodos e um espelho intrigante. O seu reflexo sorri sozinho e pergunta: 'Deseja recuperar tudo o que perdeu?'",
         "options": [
             ("Conectar-se à máquina de memórias", "final_memorias"),
@@ -208,7 +208,7 @@ SCENES = {
 
     "nucleo": {
         "title": "Núcleo do Reator",
-        "image": "assets/imagens/nucleo.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "O reator pulsa energia pura. O console principal aguarda o código completo de evacuação para desligamento seguro.",
         "options": [
             ("Digitar as 3 partes do código de segurança", "tentar_desligar"),
@@ -219,56 +219,56 @@ SCENES = {
 
     "nucleo_perigoso": {
         "title": "Colapso Imediato!",
-        "image": "assets/imagens/nucleo.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Ao arrancar os cabos principais, o núcleo entra em fusão descontrolada! Você é soterrado por destroços ardentes e perde 2 vidas.",
         "options": [("Tentar escapar pelos escombros", "tunel")],
     },
 
     "fuga_dupla": {
         "title": "FINAL: A VERDADEIRA FUGA",
-        "image": "assets/imagens/final_bom.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Você e o verdadeiro criador escapam segundos antes da detonação total. Sua identidade é artificial, mas sua escolha foi genuína.\n\nFINAL BOM.",
         "options": [],
     },
     
     "fim_egoista": {
         "title": "FINAL: O SOBREVIVENTE",
-        "image": "assets/imagens/final_ruim.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Você foge sozinho para o mundo exterior. Meses mais tarde, alguém bate à sua porta... É o verdadeiro Mateus cobrando contas.\n\nFINAL RUIM.",
         "options": [],
     },
 
     "saida_falsa": {
         "title": "FINAL: EXÉRCITO DE CÓPIAS",
-        "image": "assets/imagens/final_ruim.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Você emerge na floresta exterior. Mas ao olhar ao redor, centenas de pessoas com o seu rosto te encaram em silêncio absoluto.\n\nFINAL RUIM.",
         "options": [],
     },
 
     "fim_sacrificio": {
         "title": "FINAL: O SACRIFÍCIO",
-        "image": "assets/imagens/final_sacrificio.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "O código é aceito. O complexo inteiro é purgado, apagando todas as consciências sintéticas — incluindo a sua. Você salvou o mundo.\n\nFINAL HERÓICO.",
         "options": [],
     },
 
     "final_memorias": {
         "title": "FINAL SECRETO: CONSCIÊNCIA TOTAL",
-        "image": "assets/imagens/final_sacrificio.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Você absorve o eco de todas as cópias que vieram antes. Você lembra de cada morte e desliga o sistema por dentro com sabedoria absoluta.\n\nFINAL SECRETO.",
         "options": [],
     },
 
     "fim_libertador": {
         "title": "FINAL: O LIBERTADOR",
-        "image": "assets/imagens/final_bom.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Você transmite os dados para a internet global. Milhares de cópias despertam simultaneamente. O mundo nunca mais será o mesmo.\n\nFINAL BOM ALTERNATIVO.",
         "options": [],
     },
 
     "fim_ruim": {
         "title": "GAME OVER",
-        "image": "assets/imagens/game_over.jpg",
+        "image": "assets/imagens/capa.jfif",
         "text": "Seu corpo cede aos ferimentos e à exaustão. A escuridão te consome. O Projeto Eclipse reiniciará o ciclo amanhã.",
         "options": [],
     },
