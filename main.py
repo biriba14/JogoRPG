@@ -10,7 +10,7 @@ CONFIG = {
     "autor": "Anna Beatriz",
     "icone": "🌑",
     "capa": "assets/imagens/capa.jfif",
-    "trilha_inicial": "assets/audios/tema_principal.mp3",
+    "trilha_inicial": "assets/audios/tema_principal.mpeg",
     "volume_inicial": 0.5,
     "vida_inicial": 5,
     "pontos_iniciais": 0,
