@@ -1,838 +1,255 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    >
-
-    <title>Projeto Eclipse</title>
-
-    <!-- PyScript -->
-    <link
-        rel="stylesheet"
-        href="https://pyscript.net/releases/2026.7.2/core.css"
-    >
-    <script
-        type="module"
-        src="https://pyscript.net/releases/2026.7.2/core.js">
-    </script>
-
-    <style>
-        /* =====================================================
-           CONFIGURAÇÕES GERAIS
-           ===================================================== */
-
-        * {
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-1: #090909;
-            --bg-2: #151515;
-            --panel: #171717;
-            --panel-2: #1d1d1d;
-            --border: rgba(255,255,255,.10);
-            --text: #f4f4f4;
-            --muted: rgba(255,255,255,.68);
-            --accent: #d5d5d5;
-            --danger: #ffaaaa;
-            --good: #b6efbd;
-        }
-
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        body {
-            min-height: 100dvh;
-            font-family: Arial, Helvetica, sans-serif;
-            color: var(--text);
-            background:
-                linear-gradient(
-                    180deg,
-                    var(--bg-1),
-                    var(--bg-2)
-                );
-        }
-
-        button {
-            font: inherit;
-        }
-
-        /* =====================================================
-           TELA DE ABERTURA
-           ===================================================== */
-
-        #tela-inicio {
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            background:
-                radial-gradient(
-                    circle at center,
-                    #252525 0%,
-                    #101010 50%,
-                    #050505 100%
-                );
-        }
-
-        .painel-inicio {
-            width: min(760px, 100%);
-            max-height: 94dvh;
-            overflow: auto;
-            padding: clamp(24px, 5vw, 48px);
-            text-align: center;
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            background: rgba(20,20,20,.92);
-            box-shadow: 0 20px 60px rgba(0,0,0,.55);
-        }
-
-        #capa-jogo {
-            display: none;
-            width: min(620px, 100%);
-            max-height: 42dvh;
-            object-fit: contain;
-            margin: 0 auto 18px;
-            border-radius: 16px;
-        }
-
-        .icone-jogo {
-            font-size: clamp(44px, 8vw, 72px);
-            margin-bottom: 12px;
-        }
-
-        #titulo-abertura {
-            margin: 0 0 12px;
-            font-size: clamp(34px, 7vw, 66px);
-            line-height: 1;
-            letter-spacing: 2px;
-        }
-
-        #subtitulo-abertura {
-            margin: 0 0 10px;
-            font-size: clamp(16px, 3vw, 22px);
-            color: var(--muted);
-        }
-
-        #autor-abertura {
-            margin: 0 0 28px;
-            font-size: 15px;
-            color: var(--muted);
-        }
-
-        #botao-iniciar {
-            width: min(420px, 100%);
-            padding: 20px 28px;
-            border: 1px solid rgba(255,255,255,.18);
-            border-radius: 16px;
-            background: #f2f2f2;
-            color: #111;
-            font-size: clamp(19px, 3vw, 24px);
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform .15s, box-shadow .15s, opacity .15s;
-        }
-
-        #botao-iniciar:hover:not(:disabled) {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 12px 32px rgba(255,255,255,.12);
-        }
-
-        #botao-iniciar:disabled {
-            opacity: .45;
-            cursor: progress;
-        }
-
-        .dica-inicio {
-            margin-top: 16px;
-            font-size: 13px;
-            color: var(--muted);
-        }
-
-        /* =====================================================
-           LAYOUT PRINCIPAL
-           ===================================================== */
-
-        .container {
-            width: 100%;
-            height: 100dvh;
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: clamp(8px, 1.5vw, 18px);
-            display: grid;
-            gap: clamp(8px, 1.5vw, 18px);
-            overflow: hidden;
-        }
-
-        .cabecalho {
-            min-width: 0;
-            min-height: 0;
-            text-align: center;
-        }
-
-        #titulo-jogo {
-            margin: 0 0 2px;
-            font-size: clamp(20px, 3vw, 40px);
-            line-height: 1.05;
-            letter-spacing: 1px;
-        }
-
-        #autor-jogo {
-            margin: 0;
-            font-size: clamp(11px, 1.4vw, 15px);
-            color: var(--muted);
-        }
-
-        /* =====================================================
-           MÍDIA
-           ===================================================== */
-
-        .midia {
-            min-width: 0;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            padding: clamp(8px, 1.2vw, 14px);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            background: var(--panel-2);
-            box-shadow: 0 10px 30px rgba(0,0,0,.28);
-        }
-
-        .media-frame {
-            position: relative;
-            min-height: 0;
-            flex: 1 1 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border-radius: 12px;
-            background: #080808;
-        }
-
-        #imagem-cena {
-            display: none;
-            width: auto;
-            height: auto;
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            background: #080808;
-        }
-
-        #video-cena {
-            display: none;
-            width: 100%;
-            height: 100%;
-            min-height: 0;
-            object-fit: contain;
-            background: #080808;
-        }
-
-        .controles-midia {
-            flex: 0 0 auto;
-            margin-top: 8px;
-        }
-
-        #audio-fundo {
-            width: 100%;
-            min-height: 32px;
-        }
-
-        .controle-audio {
-            margin-top: 2px;
-            text-align: center;
-            font-size: 10px;
-            line-height: 1.1;
-            color: var(--muted);
-        }
-
-        /* =====================================================
-           PAINEL DO JOGO
-           ===================================================== */
-
-        .painel-jogo {
-            min-width: 0;
-            min-height: 0;
-            display: grid;
-            grid-template-rows:
-                auto
-                minmax(0, 1fr)
-                auto
-                auto;
-            gap: 10px;
-            overflow: hidden;
-            padding: clamp(10px, 1.4vw, 16px);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            background: var(--panel);
-            box-shadow: 0 10px 30px rgba(0,0,0,.28);
-        }
-
-        #titulo-cena {
-            margin: 0;
-            font-size: clamp(20px, 2.4vw, 30px);
-            color: var(--accent);
-        }
-
-        #texto-cena {
-            min-height: 0;
-            overflow: auto;
-            white-space: pre-line;
-            padding: 14px;
-            border-left: 4px solid rgba(255,255,255,.20);
-            border-radius: 8px;
-            background: rgba(255,255,255,.035);
-            font-size: clamp(15px, 1.4vw, 18px);
-            line-height: 1.55;
-        }
-
-        /* =====================================================
-           STATUS
-           ===================================================== */
-
-        #status {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 8px;
-        }
-
-        .status-box {
-            min-width: 0;
-            padding: 8px 10px;
-            border: 1px solid var(--border);
-            border-radius: 9px;
-            background: rgba(255,255,255,.035);
-        }
-
-        .status-label {
-            display: block;
-            margin-bottom: 3px;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: .8px;
-            color: var(--muted);
-        }
-
-        .status-value {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: clamp(12px, 1.3vw, 16px);
-        }
-
-        #vida.danger {
-            color: var(--danger);
-        }
-
-        /* =====================================================
-           OPÇÕES
-           ===================================================== */
-
-        #opcoes {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
-        }
-
-        .botao-opcao,
-        #reiniciar {
-            min-width: 0;
-            padding: 11px 12px;
-            border: 1px solid rgba(255,255,255,.16);
-            border-radius: 10px;
-            color: var(--text);
-            background: #292929;
-            cursor: pointer;
-            transition: background .15s, transform .15s;
-        }
-
-        .botao-opcao:hover:not(:disabled),
-        #reiniciar:hover {
-            background: #3a3a3a;
-            transform: translateY(-1px);
-        }
-
-        .botao-opcao:disabled {
-            opacity: .42;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        #reiniciar {
-            width: 100%;
-            background: #202020;
-        }
-
-        /* =====================================================
-           RESPONSIVIDADE POR ORIENTAÇÃO
-           ===================================================== */
-
-        @media (orientation: landscape) {
-            .container {
-                grid-template-columns:
-                    minmax(0, 1fr)
-                    minmax(0, 1fr);
-                grid-template-rows:
-                    auto
-                    minmax(0, 1fr);
-                grid-template-areas:
-                    "cabecalho cabecalho"
-                    "midia painel";
-            }
-
-            .cabecalho { grid-area: cabecalho; }
-            .midia { grid-area: midia; }
-            .painel-jogo { grid-area: painel; }
-        }
-
-        @media (orientation: portrait) {
-            .container {
-                grid-template-columns: minmax(0, 1fr);
-                grid-template-rows:
-                    auto
-                    minmax(0, 40fr)
-                    minmax(0, 60fr);
-                grid-template-areas:
-                    "cabecalho"
-                    "midia"
-                    "painel";
-            }
-
-            .cabecalho { grid-area: cabecalho; }
-            .midia { grid-area: midia; padding: 7px; }
-            .painel-jogo { grid-area: painel; padding: 9px; }
-
-            #status {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-
-            #texto-cena {
-                padding: 10px;
-            }
-        }
-
-        @media (orientation: portrait) and (max-height: 760px) {
-            .container {
-                padding: 5px;
-                gap: 5px;
-                grid-template-rows:
-                    auto
-                    minmax(0, 34fr)
-                    minmax(0, 66fr);
-            }
-
-            #titulo-jogo {
-                font-size: clamp(16px, 4.6vw, 24px);
-            }
-
-            #autor-jogo {
-                font-size: 10px;
-            }
-
-            .controle-audio {
-                display: none;
-            }
-
-            .painel-jogo {
-                gap: 6px;
-            }
-
-            .status-box {
-                padding: 5px 7px;
-            }
-
-            .botao-opcao,
-            #reiniciar {
-                padding: 8px 9px;
-                font-size: 13px;
-            }
-        }
-
-        @media (max-width: 520px) {
-            #opcoes {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .status-label {
-                font-size: 9px;
-            }
-
-            .status-value {
-                font-size: 12px;
-            }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Projeto Eclipse</title>
+
+    <!-- PyScript -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2026.7.2/core.css">
+    <script type="module" src="https://pyscript.net/releases/2026.7.2/core.js"></script>
+
+    <style>
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        :root {
+            --bg-1: #090909; --bg-2: #151515;
+            --panel: #171717; --panel-2: #1d1d1d;
+            --border: rgba(255,255,255,.10);
+            --text: #f4f4f4; --muted: rgba(255,255,255,.68);
+            --accent: #d5d5d5; --danger: #ffaaaa;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            width: 100vw; height: 100vh;
+            color: var(--text);
+            background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+            overflow: hidden;
+        }
+
+        /* TELA DE CARREGAMENTO */
+        #tela-inicio {
+            position: fixed; inset: 0; z-index: 99;
+            display: flex; align-items: center; justify-content: center;
+            background: #0a0a0a;
+        }
+        .painel-inicio {
+            width: 90%; max-width: 600px;
+            padding: 40px; text-align: center;
+            background: #111; border: 1px solid var(--border);
+            border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,.8);
+        }
+        #titulo-abertura { margin: 10px 0; font-size: 2.5rem; letter-spacing: 2px; }
+        #subtitulo-abertura { color: var(--muted); margin-bottom: 30px; }
+        #botao-iniciar {
+            width: 100%; padding: 15px; font-size: 1.2rem; font-weight: bold;
+            background: #fff; color: #000; border: none; border-radius: 8px;
+            cursor: pointer; transition: 0.2s;
+        }
+        #botao-iniciar:hover:not(:disabled) { transform: scale(1.02); }
+        #botao-iniciar:disabled { opacity: 0.5; cursor: wait; }
+
+        /* JOGO PRINCIPAL */
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 60px 1fr;
+            grid-template-areas: "cabecalho cabecalho" "midia painel";
+            gap: 20px; max-width: 1400px; height: 100vh;
+            margin: 0 auto; padding: 20px;
+        }
+        
+        .cabecalho { grid-area: cabecalho; text-align: center; }
+        #titulo-jogo { margin: 0; font-size: 2rem; }
+        #autor-jogo { margin: 5px 0 0; color: var(--muted); font-size: 0.9rem; }
+
+        /* MÍDIA (FOTO/VÍDEO) */
+        .midia {
+            grid-area: midia; display: flex; flex-direction: column;
+            background: var(--panel-2); padding: 15px;
+            border: 1px solid var(--border); border-radius: 16px;
+        }
+        .media-frame {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            background: #000; border-radius: 12px; overflow: hidden;
+        }
+        #imagem-cena, #video-cena {
+            max-width: 100%; max-height: 100%; object-fit: contain;
+        }
+        
+        /* BOTÃO DE ÁUDIO CUSTOMIZADO */
+        #btn-mutar {
+            width: 100%; margin-top: 15px; padding: 12px;
+            background: #2a2a2a; color: #fff; border: 1px solid var(--border);
+            border-radius: 8px; cursor: pointer; font-size: 1rem;
+            transition: 0.2s; display: none; /* Escondido por padrão */
+        }
+        #btn-mutar:hover { background: #3a3a3a; }
+
+        /* PAINEL NARRATIVO */
+        .painel-jogo {
+            grid-area: painel; display: flex; flex-direction: column; gap: 15px;
+            background: var(--panel); padding: 20px;
+            border: 1px solid var(--border); border-radius: 16px;
+        }
+        #titulo-cena { margin: 0; font-size: 1.8rem; color: var(--accent); }
+        #texto-cena {
+            flex: 1; overflow-y: auto; white-space: pre-line;
+            padding: 15px; background: rgba(255,255,255,.05);
+            border-left: 4px solid var(--muted); border-radius: 8px;
+            font-size: 1.1rem; line-height: 1.6;
+        }
+
+        /* STATUS E INVENTÁRIO */
+        #status { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .status-box {
+            padding: 10px; background: rgba(255,255,255,.05);
+            border: 1px solid var(--border); border-radius: 8px; text-align: center;
+        }
+        .status-label { display: block; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
+        .status-value { font-size: 1.1rem; font-weight: bold; }
+        #vida.danger { color: var(--danger); }
+
+        /* BOTÕES DE ESCOLHA */
+        #opcoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .botao-opcao, #reiniciar {
+            padding: 15px; background: #292929; color: #fff;
+            border: 1px solid rgba(255,255,255,.2); border-radius: 8px;
+            cursor: pointer; font-size: 1rem; transition: 0.2s;
+        }
+        .botao-opcao:hover:not(:disabled), #reiniciar:hover { background: #3a3a3a; transform: translateY(-2px); }
+        .botao-opcao:disabled { opacity: 0.3; cursor: not-allowed; }
+        #reiniciar { background: #1a1a1a; margin-top: 10px; }
+
+        /* RESPONSIVO MODO CELULAR */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 35vh 1fr;
+                grid-template-areas: "cabecalho" "midia" "painel";
+                padding: 10px; gap: 10px;
+            }
+            #opcoes { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-
 <body>
 
-    <!-- =====================================================
-         TELA DE ABERTURA
-         ===================================================== -->
-
-    <div id="tela-inicio">
-
-        <div class="painel-inicio">
-
-            <img
-                id="capa-jogo"
-                src=""
-                alt="Capa do jogo"
-            >
-
-            <div
-                id="icone-abertura"
-                class="icone-jogo"
-            >
-                🎮
-            </div>
-
-            <h1 id="titulo-abertura">
-                Carregando jogo...
-            </h1>
-
-            <p id="subtitulo-abertura">
-                Aguarde o PyScript iniciar.
-            </p>
-
-            <p id="autor-abertura"></p>
-
-            <button
-                id="botao-iniciar"
-                type="button"
-                disabled
-            >
-                CARREGANDO...
-            </button>
-
-            <div class="dica-inicio">
-                O botão será liberado quando o jogo estiver pronto.
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- =====================================================
-         JOGO
-         ===================================================== -->
-
-    <main class="container">
-
-        <header class="cabecalho">
-
-            <h1 id="titulo-jogo">
-                Jogo
-            </h1>
-
-            <p id="autor-jogo">
-                Autor
-            </p>
-
-        </header>
-
-        <!-- MÍDIA -->
-
-        <section class="midia">
-
-            <div class="media-frame">
-
-                <img
-                    id="imagem-cena"
-                    src=""
-                    alt="Imagem da cena atual"
-                >
-
-                <video
-                    id="video-cena"
-                    controls
-                    playsinline
-                    preload="metadata"
-                >
-                    Seu navegador não suporta vídeo.
-                </video>
-
-            </div>
-
-            <div class="controles-midia">
-
-                <audio
-                    id="audio-fundo"
-                    controls
-                    loop
-                    preload="metadata"
-                >
-                    Seu navegador não suporta áudio.
-                </audio>
-
-                <div class="controle-audio">
-                    🔊 Trilha sonora
-                </div>
-
-            </div>
-
-        </section>
-
-        <!-- PAINEL NARRATIVO -->
-
-        <section class="painel-jogo">
-
-            <h2 id="titulo-cena">
-                Cena
-            </h2>
-
-            <div id="texto-cena">
-                Carregando...
-            </div>
-
-            <section id="status">
-
-                <div class="status-box">
-                    <span class="status-label">Vida</span>
-                    <div
-                        id="vida"
-                        class="status-value"
-                    >
-                        ❤️ ❤️ ❤️
-                    </div>
-                </div>
-
-                <div class="status-box">
-                    <span class="status-label">Inventário</span>
-                    <div
-                        id="inventario"
-                        class="status-value"
-                    >
-                        Vazio
-                    </div>
-                </div>
-
-                <div class="status-box">
-                    <span class="status-label">Pontos</span>
-                    <div
-                        id="pontos"
-                        class="status-value"
-                    >
-                        0
-                    </div>
-                </div>
-
-            </section>
-
-            <div id="opcoes">
-
-                <button
-                    id="opcao1"
-                    class="botao-opcao"
-                    type="button"
-                ></button>
-
-                <button
-                    id="opcao2"
-                    class="botao-opcao"
-                    type="button"
-                ></button>
-
-                <button
-                    id="opcao3"
-                    class="botao-opcao"
-                    type="button"
-                ></button>
-
-                <button
-                    id="opcao4"
-                    class="botao-opcao"
-                    type="button"
-                ></button>
-
-            </div>
-
-            <button
-                id="reiniciar"
-                type="button"
-            >
-                ↻ Reiniciar aventura
-            </button>
-
-        </section>
-
-    </main>
-
-    <!-- =====================================================
-         FUNÇÕES JAVASCRIPT DE MÍDIA
-         Chamadas pelo Python quando necessário.
-         ===================================================== -->
-
-    <script>
-        window.frameworkAudio = {
-            started: false,
-
-            async play(src, volume = 0.5, loop = true) {
-                const audio =
-                    document.getElementById("audio-fundo");
-
-                if (src && audio.getAttribute("src") !== src) {
-                    audio.src = src;
-                    audio.load();
-                }
-
-                audio.volume = volume;
-                audio.loop = loop;
-
-                try {
-                    await audio.play();
-                    this.started = true;
-                }
-                catch (erro) {
-                    console.log(
-                        "Reprodução de áudio aguardando interação do usuário.",
-                        erro
-                    );
-                }
-            },
-
-            stop() {
-                const audio =
-                    document.getElementById("audio-fundo");
-
-                audio.pause();
-                audio.currentTime = 0;
-            }
-        };
-
-
-        window.frameworkImage = {
-
-            show(src) {
-                const imagem =
-                    document.getElementById("imagem-cena");
-
-                imagem.onload = function () {
-                    imagem.style.display = "block";
-                    console.log("Imagem carregada:", src);
-                };
-
-                imagem.onerror = function () {
-                    imagem.style.display = "none";
-                    console.error("Falha ao carregar imagem:", src);
-                };
-
-                imagem.src = src;
-            },
-
-            hide() {
-                const imagem =
-                    document.getElementById("imagem-cena");
-
-                imagem.style.display = "none";
-                imagem.removeAttribute("src");
-            }
-        };
-
-
-        window.frameworkVideo = {
-
-            async play(src, autoplay = false) {
-
-                const video =
-                    document.getElementById("video-cena");
-
-                const imagem =
-                    document.getElementById("imagem-cena");
-
-                imagem.style.display = "none";
-
-                video.src = src;
-                video.style.display = "block";
-                video.load();
-
-                if (autoplay) {
-                    try {
-                        await video.play();
-                    }
-                    catch (erro) {
-                        console.log(
-                            "Vídeo disponível para reprodução manual.",
-                            erro
-                        );
-                    }
-                }
-            },
-
-            stop() {
-                const video =
-                    document.getElementById("video-cena");
-
-                video.pause();
-                video.style.display = "none";
-                video.removeAttribute("src");
-                video.load();
-            }
-        };
-
-
-        const botaoIniciar =
-            document.getElementById("botao-iniciar");
-
-        const telaInicio =
-            document.getElementById("tela-inicio");
-
-
-        botaoIniciar.addEventListener(
-            "click",
-            async function () {
-
-                const audio =
-                    document.getElementById("audio-fundo");
-
-                const trilhaInicial =
-                    audio.dataset.inicial || "";
-
-                const volumeInicial =
-                    Number(
-                        audio.dataset.volume || "0.5"
-                    );
-
-                if (trilhaInicial) {
-                    await window.frameworkAudio.play(
-                        trilhaInicial,
-                        volumeInicial,
-                        true
-                    );
-                }
-
-                telaInicio.style.display =
-                    "none";
-            }
-        );
-
-
-
-    </script>
-
-    <!-- =====================================================
-         PYTHON
-         Sem terminal e sem worker.
-         ===================================================== -->
-
-    <script
-        type="py"
-        src="./main.py">
-    </script>
-
+    <!-- TELA DE ABERTURA -->
+    <div id="tela-inicio">
+        <div class="painel-inicio">
+            <h1 id="titulo-abertura">Carregando jogo...</h1>
+            <p id="subtitulo-abertura">Aguarde o sistema iniciar.</p>
+            <button id="botao-iniciar" type="button" disabled>CARREGANDO...</button>
+        </div>
+    </div>
+
+    <!-- INTERFACE DO JOGO -->
+    <main class="container">
+        <header class="cabecalho">
+            <h1 id="titulo-jogo">Projeto Eclipse</h1>
+            <p id="autor-jogo">Anna Beatriz</p>
+        </header>
+
+        <section class="midia">
+            <div class="media-frame">
+                <!-- A imagem fica escondida por padrão -->
+                <img id="imagem-cena" src="" alt="Cenário" style="display: none;">
+                <!-- O vídeo fica escondido por padrão -->
+                <video id="video-cena" controls playsinline style="display: none;"></video>
+            </div>
+            
+            <!-- Áudio nativo totalmente oculto -->
+            <audio id="audio-fundo" loop style="display: none;"></audio>
+            <!-- Botão bonitão para mutar/desmutar (só aparece se tiver música) -->
+            <button id="btn-mutar" type="button">🔊 Áudio: Ligado</button>
+        </section>
+
+        <section class="painel-jogo">
+            <h2 id="titulo-cena">Cena</h2>
+            <div id="texto-cena">Carregando...</div>
+            
+            <section id="status">
+                <div class="status-box"><span class="status-label">Vida</span><div id="vida" class="status-value">❤️ ❤️ ❤️</div></div>
+                <div class="status-box"><span class="status-label">Inventário</span><div id="inventario" class="status-value">Vazio</div></div>
+                <div class="status-box"><span class="status-label">Pontos</span><div id="pontos" class="status-value">0</div></div>
+            </section>
+            
+            <div id="opcoes">
+                <button id="opcao1" class="botao-opcao" type="button" style="display: none;"></button>
+                <button id="opcao2" class="botao-opcao" type="button" style="display: none;"></button>
+                <button id="opcao3" class="botao-opcao" type="button" style="display: none;"></button>
+                <button id="opcao4" class="botao-opcao" type="button" style="display: none;"></button>
+            </div>
+            <button id="reiniciar" type="button">↻ Reiniciar aventura</button>
+        </section>
+    </main>
+
+    <!-- LÓGICA DE MULTIMÍDIA JAVASCRIPT -->
+    <script>
+        // Controle de Áudio Modernizado
+        const btnMutar = document.getElementById("btn-mutar");
+        const audio = document.getElementById("audio-fundo");
+
+        btnMutar.addEventListener("click", () => {
+            audio.muted = !audio.muted;
+            btnMutar.innerText = audio.muted ? "🔇 Áudio: Mutado" : "🔊 Áudio: Ligado";
+            btnMutar.style.background = audio.muted ? "#4a1a1a" : "#2a2a2a";
+        });
+
+        window.frameworkAudio = {
+            async play(src, volume = 0.5, loop = true) {
+                if (src && audio.getAttribute("src") !== src) {
+                    audio.src = src; audio.load();
+                }
+                audio.volume = volume; audio.loop = loop;
+                try {
+                    await audio.play();
+                    btnMutar.style.display = "block"; // Só mostra o botão se tocou a música
+                } catch (erro) { console.log("Aguardando clique do usuário.", erro); }
+            },
+            stop() {
+                audio.pause(); audio.currentTime = 0;
+                btnMutar.style.display = "none"; // Esconde o botão se a cena for silenciosa
+            }
+        };
+
+        // Controle de Imagem
+        window.frameworkImage = {
+            show(src) {
+                const img = document.getElementById("imagem-cena");
+                img.onload = () => img.style.display = "block";
+                img.onerror = () => img.style.display = "none";
+                img.src = src;
+            },
+            hide() {
+                document.getElementById("imagem-cena").style.display = "none";
+            }
+        };
+
+        // Controle de Vídeo (Oculta se não houver vídeo)
+        window.frameworkVideo = {
+            async play(src, autoplay = false) {
+                const vid = document.getElementById("video-cena");
+                document.getElementById("imagem-cena").style.display = "none";
+                vid.src = src; vid.style.display = "block"; vid.load();
+                if (autoplay) { try { await vid.play(); } catch(e) {} }
+            },
+            stop() {
+                const vid = document.getElementById("video-cena");
+                vid.pause(); vid.style.display = "none"; vid.removeAttribute("src");
+            }
+        };
+
+        // Início do Jogo
+        document.getElementById("botao-iniciar").addEventListener("click", async function () {
+            const trilhaInicial = audio.dataset.inicial || "";
+            if (trilhaInicial) { await window.frameworkAudio.play(trilhaInicial, 0.5, true); }
+            document.getElementById("tela-inicio").style.display = "none";
+        });
+    </script>
+
+    <!-- CONEXÃO COM O PYTHON -->
+    <script type="py" src="./main.py"></script>
 </body>
 </html>
