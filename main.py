@@ -1,13 +1,9 @@
 # ============================================================
 # PROJETO ECLIPSE
-# Aplicação da história ao Projeto Eclipse
+# Aplicação da história ao Framework PyScript Game Jam V2
 # ============================================================
 
 from pyscript import web, when, window
-
-# ============================================================
-# CONFIGURAÇÃO GERAL
-# ============================================================
 
 CONFIG = {
     "titulo": "PROJETO ECLIPSE",
@@ -22,11 +18,6 @@ CONFIG = {
     "cena_inicial": "inicio",
 }
 
-
-# ============================================================
-# ESTADO DO JOGO
-# ============================================================
-
 state = {
     "vida": CONFIG["vida_inicial"],
     "inventario": [],
@@ -34,9 +25,8 @@ state = {
     "cena": CONFIG["cena_inicial"],
 }
 
-
 # ============================================================
-# CENAS / NÓS NARRATIVOS (HISTÓRIA DA ANNA BEATRIZ)
+# CENAS NARRATIVAS
 # ============================================================
 
 SCENES = {
@@ -60,9 +50,7 @@ SCENES = {
     "armario": {
         "title": "Armário de Emergência",
         "image": "assets/imagens/armario.jpg",
-        "text": (
-            "Você abre o armário. Dentro existem suprimentos que podem salvar sua vida, além de uma fotografia antiga."
-        ),
+        "text": "Você abre o armário. Dentro existem suprimentos que podem salvar sua vida, além de uma fotografia antiga.",
         "options": [
             ("Pegar lanterna e chave", "pegar_ferramentas"),
             ("Pegar kit médico e crachá", "pegar_suprimentos"),
@@ -191,9 +179,7 @@ SCENES = {
             "Há uma maca e um monitor ligado: PACIENTE 07. MEMÓRIA: INCOMPLETA. IDENTIDADE: MATEUS ALMEIDA.\n\n"
             "Debaixo da maca, você encontra um cartão com a SEGUNDA PARTE do Código de Evacuação!"
         ),
-        "options": [
-            ("Pegar código e sair", "pegar_codigo2"),
-        ],
+        "options": [("Pegar código e sair", "pegar_codigo2")],
     },
 
     "laboratorio": {
@@ -214,10 +200,7 @@ SCENES = {
     "gerador": {
         "title": "Sala do Gerador",
         "text": "O enorme motor está desligado. Uma alavanca indica: REINICIALIZAÇÃO MANUAL.",
-        "options": [
-            ("Ligar o gerador", "ligar_gerador"),
-            ("Voltar", "laboratorio"),
-        ],
+        "options": [("Ligar o gerador", "ligar_gerador"), ("Voltar", "laboratorio")],
     },
 
     "alarme": {
@@ -314,62 +297,40 @@ SCENES = {
         "options": [("Tentar fugir da explosão", "tunel")],
     },
 
-    # ========================== FINAIS ==========================
     "fuga_dupla": {
         "title": "FINAL: A VERDADEIRA FUGA",
         "image": "assets/imagens/final_bom.jpg",
-        "text": (
-            "Você ajuda o verdadeiro Mateus a fugir. O laboratório explode atrás de vocês.\n"
-            "Sua origem como cópia não determina quem você é. Suas escolhas sim.\n\n"
-            "FINAL BOM."
-        ),
+        "text": "Você ajuda o verdadeiro Mateus a fugir. O laboratório explode atrás de vocês.\nSua origem como cópia não determina quem você é. Suas escolhas sim.\n\nFINAL BOM.",
         "options": [],
     },
     
     "fim_egoista": {
         "title": "FINAL: O SOBREVIVENTE",
-        "text": (
-            "Você foge sozinho e reconstrói sua vida. Meses depois, alguém bate na sua porta. É o verdadeiro Mateus, e ele não está feliz.\n\n"
-            "FINAL RUIM."
-        ),
+        "text": "Você foge sozinho e reconstrói sua vida. Meses depois, alguém bate na sua porta. É o verdadeiro Mateus, e ele não está feliz.\n\nFINAL RUIM.",
         "options": [],
     },
 
     "saida_falsa": {
         "title": "FINAL: O EXÉRCITO DE CÓPIAS",
-        "text": (
-            "Você sai na floresta. Acha que conseguiu, mas dezenas de pessoas estão lá fora. Todas com o seu rosto.\n"
-            "'Bem-vindo de volta, Paciente 07'. O laboratório não acabou... Ele apenas começou.\n\n"
-            "FINAL RUIM."
-        ),
+        "text": "Você sai na floresta. Acha que conseguiu, mas dezenas de pessoas estão lá fora. Todas com o seu rosto.\n'Bem-vindo de volta, Paciente 07'. O laboratório não acabou... Ele apenas começou.\n\nFINAL RUIM.",
         "options": [],
     },
 
     "fim_sacrificio": {
         "title": "FINAL: O SACRIFÍCIO",
-        "text": (
-            "O código funciona. As 847 consciências são apagadas, incluindo a sua. Você morre, mas liberta o mundo dessa maldição.\n\n"
-            "FINAL HERÓICO."
-        ),
+        "text": "O código funciona. As 847 consciências são apagadas, incluindo a sua. Você morre, mas liberta o mundo dessa maldição.\n\nFINAL HERÓICO.",
         "options": [],
     },
 
     "final_memorias": {
         "title": "FINAL SECRETO: TODAS AS MEMÓRIAS",
-        "text": (
-            "Você absorve as memórias de todas as cópias mortas antes de você. Você lembra de morrer 12 vezes. Você aceita seu destino e desliga a máquina por dentro.\n\n"
-            "FINAL SECRETO."
-        ),
+        "text": "Você absorve as memórias de todas as cópias mortas antes de você. Você lembra de morrer 12 vezes. Você aceita seu destino e desliga a máquina por dentro.\n\nFINAL SECRETO.",
         "options": [],
     },
 
     "fim_libertador": {
         "title": "FINAL: O LIBERTADOR",
-        "text": (
-            "Você sobrecarrega o sistema enviando os dados para a rede. Centenas de cópias acordam pelo mundo.\n"
-            "Você não sabe se é humano, mas sabe que está vivo.\n\n"
-            "FINAL BOM ALTERNATIVO."
-        ),
+        "text": "Você sobrecarrega o sistema enviando os dados para a rede. Centenas de cópias acordam pelo mundo.\nVocê não sabe se é humano, mas sabe que está vivo.\n\nFINAL BOM ALTERNATIVO.",
         "options": [],
     },
 
@@ -381,50 +342,22 @@ SCENES = {
     },
 }
 
-
 # ============================================================
-# ACESSO AO HTML
+# LÓGICA DO MOTOR
 # ============================================================
 
 def el(id_elemento):
     return web.page[id_elemento]
 
-
-# ============================================================
-# IDENTIDADE VISUAL
-# ============================================================
-
 def configurar_identidade():
-    titulo = CONFIG["titulo"]
-    autor = CONFIG["autor"]
-    subtitulo = CONFIG["subtitulo"]
-
-    window.document.title = titulo
-    el("titulo-jogo").innerText = titulo
-    el("autor-jogo").innerText = f"Autor: {autor}"
-    el("titulo-abertura").innerText = titulo
-    el("subtitulo-abertura").innerText = subtitulo
-    el("autor-abertura").innerText = f"Criado por {autor}"
-    el("icone-abertura").innerText = CONFIG["icone"]
-
-    capa = CONFIG.get("capa")
-    if capa:
-        el("capa-jogo").src = capa
-        el("capa-jogo").style.display = "block"
-        el("icone-abertura").style.display = "none"
-    else:
-        el("capa-jogo").style.display = "none"
-        el("icone-abertura").style.display = "block"
-
+    window.document.title = CONFIG["titulo"]
+    el("titulo-abertura").innerText = CONFIG["titulo"]
+    el("titulo-jogo").innerText = CONFIG["titulo"]
+    el("autor-jogo").innerText = f"Autor: {CONFIG['autor']}"
+    
     audio = el("audio-fundo")
-    trilha = CONFIG.get("trilha_inicial")
-    audio.dataset.inicial = trilha if trilha else ""
+    audio.dataset.inicial = CONFIG.get("trilha_inicial", "")
     audio.dataset.volume = str(CONFIG.get("volume_inicial", 0.5))
-
-
-# ============================================================
-# STATUS E INVENTÁRIO
-# ============================================================
 
 def atualizar_status():
     vida = state["vida"]
@@ -435,22 +368,14 @@ def atualizar_status():
         el("vida").innerText = "💀"
         el("vida").classList.add("danger")
 
-    if state["inventario"]:
-        el("inventario").innerText = ", ".join(state["inventario"])
-    else:
-        el("inventario").innerText = "Vazio"
-
+    el("inventario").innerText = ", ".join(state["inventario"]) if state["inventario"] else "Vazio"
     el("pontos").innerText = str(state["pontos"])
 
-
 def perder_vida(quantidade=1):
-    """Retira vida e retorna True se o jogador morreu."""
     state["vida"] -= quantidade
-    if state["vida"] < 0:
-        state["vida"] = 0
+    if state["vida"] < 0: state["vida"] = 0
     atualizar_status()
     return state["vida"] <= 0
-
 
 def adicionar_item(item, pontos=0):
     if item not in state["inventario"]:
@@ -458,226 +383,99 @@ def adicionar_item(item, pontos=0):
         state["pontos"] += pontos
     atualizar_status()
 
-
 def possui_item(item):
     return item in state["inventario"]
-
 
 def ganhar_pontos(quantidade):
     state["pontos"] += quantidade
     atualizar_status()
 
-
-# ============================================================
-# MULTIMÍDIA
-# ============================================================
-
-def mostrar_imagem(caminho):
-    window.frameworkVideo.stop()
-    if not caminho:
-        window.frameworkImage.hide()
-        return
-    window.frameworkImage.show(caminho)
-
-def mostrar_video(caminho, autoplay=False):
-    if not caminho:
-        window.frameworkVideo.stop()
-        return
-    window.frameworkVideo.play(caminho, autoplay)
-
-def trocar_audio(caminho):
-    if caminho:
-        window.frameworkAudio.play(
-            caminho,
-            CONFIG.get("volume_inicial", 0.5),
-            True,
-        )
-
-def parar_audio():
-    window.frameworkAudio.stop()
-
-
-# ============================================================
-# BOTÕES E CENAS
-# ============================================================
-
-def configurar_botao(numero, texto="", ativo=False):
-    botao = el(f"opcao{numero}")
-    botao.innerText = texto
-    botao.disabled = not ativo
-    botao.style.display = "block" if ativo else "none"
-
-def opcoes_da_cena(nome, cena):
-    return list(cena.get("options", []))
-
 def atualizar_botoes(opcoes):
     for i in range(1, 5):
+        botao = el(f"opcao{i}")
         if i <= len(opcoes):
-            configurar_botao(i, opcoes[i - 1][0], True)
+            botao.innerText = opcoes[i - 1][0]
+            botao.style.display = "block"
+            botao.disabled = False
         else:
-            configurar_botao(i, "", False)
+            botao.style.display = "none"
 
 def mostrar_cena(nome):
-    if nome not in SCENES:
-        el("titulo-cena").innerText = "Erro de cena"
-        el("texto-cena").innerText = f"A cena '{nome}' não existe em SCENES."
-        atualizar_botoes([])
-        return
-
+    if nome not in SCENES: return
     state["cena"] = nome
     cena = SCENES[nome]
 
     el("titulo-cena").innerText = cena.get("title", nome)
     el("texto-cena").innerText = cena.get("text", "")
 
+    # Controle de Mídia via JS
     video = cena.get("video")
+    img = cena.get("image")
+    
     if video:
-        mostrar_video(video, cena.get("video_autoplay", False))
+        window.frameworkVideo.play(video, cena.get("video_autoplay", False))
+    elif img:
+        window.frameworkVideo.stop()
+        window.frameworkImage.show(img)
     else:
-        mostrar_imagem(cena.get("image"))
+        window.frameworkVideo.stop()
+        window.frameworkImage.hide()
 
     if "audio" in cena:
-        if cena["audio"]:
-            trocar_audio(cena["audio"])
-        else:
-            parar_audio()
+        if cena["audio"]: window.frameworkAudio.play(cena["audio"])
+        else: window.frameworkAudio.stop()
+    elif cena.get("stop_audio"):
+        window.frameworkAudio.stop()
 
-    if cena.get("stop_audio"):
-        parar_audio()
-
-    atualizar_botoes(opcoes_da_cena(nome, cena))
+    atualizar_botoes(cena.get("options", []))
     atualizar_status()
-
-
-# ============================================================
-# EXECUTAR AÇÃO (LÓGICA DA ANNA BEATRIZ)
-# ============================================================
 
 def executar_acao(acao):
     if acao == "pegar_ferramentas":
-        adicionar_item("lanterna")
-        adicionar_item("chave")
-        mostrar_cena("armario_ferramentas")
-
+        adicionar_item("lanterna"); adicionar_item("chave"); mostrar_cena("armario_ferramentas")
     elif acao == "pegar_suprimentos":
-        adicionar_item("kit médico")
-        adicionar_item("crachá")
-        mostrar_cena("armario_suprimentos")
-
-    elif acao == "ver_fotografia":
-        mostrar_cena("armario_foto")
-
+        adicionar_item("kit médico"); adicionar_item("crachá"); mostrar_cena("armario_suprimentos")
+    elif acao == "ver_fotografia": mostrar_cena("armario_foto")
     elif acao == "tentar_porta_restrita":
-        if possui_item("crachá"):
-            mostrar_cena("laboratorio")
-        else:
-            morreu = perder_vida(1)
-            if morreu:
-                mostrar_cena("fim_ruim")
-            else:
-                mostrar_cena("porta_choque")
-
+        mostrar_cena("laboratorio") if possui_item("crachá") else mostrar_cena("fim_ruim") if perder_vida(1) else mostrar_cena("porta_choque")
     elif acao == "tentar_porta_seguranca":
-        if possui_item("chave"):
-            mostrar_cena("arquivo")
-        else:
-            morreu = perder_vida(1)
-            if morreu:
-                mostrar_cena("fim_ruim")
-            else:
-                mostrar_cena("porta_choque")
-
+        mostrar_cena("arquivo") if possui_item("chave") else mostrar_cena("fim_ruim") if perder_vida(1) else mostrar_cena("porta_choque")
     elif acao == "descer_escadas":
-        if possui_item("lanterna"):
-            mostrar_cena("subsolo")
-        else:
-            morreu = perder_vida(1)
-            if morreu:
-                mostrar_cena("fim_ruim")
-            else:
-                mostrar_cena("queda_escada")
-
+        mostrar_cena("subsolo") if possui_item("lanterna") else mostrar_cena("fim_ruim") if perder_vida(1) else mostrar_cena("queda_escada")
     elif acao == "ativar_pc":
-        adicionar_item("codigo1")
-        mostrar_cena("ativar_pc")
-
+        adicionar_item("codigo1"); mostrar_cena("ativar_pc")
     elif acao == "pegar_codigo2":
-        adicionar_item("codigo2")
-        mostrar_cena("subsolo")
-
+        adicionar_item("codigo2"); mostrar_cena("subsolo")
     elif acao == "pegar_codigo3":
-        adicionar_item("codigo3")
-        mostrar_cena("subsolo")
-
-    elif acao == "ligar_gerador":
-        mostrar_cena("alarme")
-
+        adicionar_item("codigo3"); mostrar_cena("subsolo")
+    elif acao == "ligar_gerador": mostrar_cena("alarme")
     elif acao == "lutar_criatura":
-        morreu = perder_vida(2)
-        if morreu:
-            mostrar_cena("fim_ruim")
-        else:
-            mostrar_cena("dano_criatura")
-
+        mostrar_cena("fim_ruim") if perder_vida(2) else mostrar_cena("dano_criatura")
     elif acao == "tentar_desligar":
         if possui_item("codigo1") and possui_item("codigo2") and possui_item("codigo3"):
-            ganhar_pontos(100)
-            mostrar_cena("fim_sacrificio")
-        else:
-            mostrar_cena("nucleo")
-
-    elif acao in SCENES:
-        mostrar_cena(acao)
-
-    else:
-        el("texto-cena").innerText = f"A ação '{acao}' não foi cadastrada."
-
-
-# ============================================================
-# EVENTOS DE CLIQUES E REINÍCIO
-# ============================================================
+            ganhar_pontos(100); mostrar_cena("fim_sacrificio")
+        else: mostrar_cena("nucleo")
+    elif acao in SCENES: mostrar_cena(acao)
 
 def escolher_opcao(numero):
-    nome = state["cena"]
-    cena = SCENES[nome]
-    opcoes = opcoes_da_cena(nome, cena)
-    indice = numero - 1
-    if indice < len(opcoes):
-        executar_acao(opcoes[indice][1])
+    opcoes = SCENES[state["cena"]].get("options", [])
+    if (numero - 1) < len(opcoes): executar_acao(opcoes[numero - 1][1])
 
 @when("click", "#opcao1")
-def clicar_opcao1(event):
-    escolher_opcao(1)
-
+def clicar_1(e): escolher_opcao(1)
 @when("click", "#opcao2")
-def clicar_opcao2(event):
-    escolher_opcao(2)
-
+def clicar_2(e): escolher_opcao(2)
 @when("click", "#opcao3")
-def clicar_opcao3(event):
-    escolher_opcao(3)
-
+def clicar_3(e): escolher_opcao(3)
 @when("click", "#opcao4")
-def clicar_opcao4(event):
-    escolher_opcao(4)
+def clicar_4(e): escolher_opcao(4)
 
 @when("click", "#reiniciar")
-def reiniciar(event):
-    state["vida"] = CONFIG["vida_inicial"]
-    state["inventario"] = []
-    state["pontos"] = CONFIG["pontos_iniciais"]
-    state["cena"] = CONFIG["cena_inicial"]
-
+def reiniciar(e):
+    state["vida"] = CONFIG["vida_inicial"]; state["inventario"] = []; state["pontos"] = CONFIG["pontos_iniciais"]
     trilha = CONFIG.get("trilha_inicial")
-    if trilha:
-        trocar_audio(trilha)
-
+    if trilha: window.frameworkAudio.play(trilha)
     mostrar_cena(CONFIG["cena_inicial"])
-
-
-# ============================================================
-# INICIALIZAÇÃO
-# ============================================================
 
 configurar_identidade()
 mostrar_cena(CONFIG["cena_inicial"])
