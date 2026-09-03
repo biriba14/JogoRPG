@@ -52,7 +52,6 @@
         #botao-iniciar:hover:not(:disabled) { transform: scale(1.02); }
         #botao-iniciar:disabled { opacity: 0.5; cursor: wait; }
 
-        /* GRID CORRIGIDO COM ALTURA FLEXÍVEL */
         .container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -87,7 +86,6 @@
         }
         #btn-mutar:hover { background: #3a3a3a; }
 
-        /* PAINEL DIREITO COM ROLAGEM INTERNA E BOTÕES FIXOS NA BASE */
         .painel-jogo {
             grid-area: painel; display: flex; flex-direction: column; gap: 10px;
             background: var(--panel); padding: 15px;
@@ -127,7 +125,6 @@
         #lista-itens li { padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; }
         #fechar-inventario { padding: 6px 15px; background: #333; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
 
-        /* BOTÕES DE ESCOLHA EXPLICITAMENTE FIXOS */
         #opcoes { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
@@ -219,6 +216,7 @@
     </main>
 
     <script>
+        const PADRAO_IMAGEM = "assets/imagens/capa.jfif";
         const btnMutar = document.getElementById("btn-mutar");
         const audio = document.getElementById("audio-fundo");
         const modalInv = document.getElementById("modal-inventario");
@@ -247,9 +245,17 @@
         window.frameworkImage = {
             show(src) {
                 const img = document.getElementById("imagem-cena");
-                img.onload = () => img.style.display = "block";
-                img.onerror = () => img.style.display = "none";
-                img.src = src;
+                img.onload = () => { img.style.display = "block"; };
+                img.onerror = () => {
+                    // Evita looping se o fallback também falhar
+                    img.onerror = () => { img.style.display = "none"; };
+                    if (img.src !== PADRAO_IMAGEM) {
+                        img.src = PADRAO_IMAGEM;
+                    } else {
+                        img.style.display = "none";
+                    }
+                };
+                img.src = src || PADRAO_IMAGEM;
             },
             hide() { document.getElementById("imagem-cena").style.display = "none"; }
         };
