@@ -1,284 +1,1246 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Projeto Eclipse</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projeto Eclipse</title>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background: #07090d;
+        color: #d9e1e8;
+        font-family: "Courier New", monospace;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+    .game {
+        width: min(900px, 100%);
+        border: 1px solid #39434d;
+        background: #0d1117;
+        box-shadow: 0 0 35px #000;
+        padding: 28px;
+    }
+    h1 {
+        text-align: center;
+        color: #e7edf2;
+        letter-spacing: 5px;
+        margin: 0 0 8px;
+    }
+    .subtitle {
+        text-align: center;
+        color: #737f8a;
+        margin-bottom: 25px;
+    }
 
-    <link rel="stylesheet" href="https://pyscript.net/releases/2026.7.2/core.css">
-    <script type="module" src="https://pyscript.net/releases/2026.7.2/core.js"></script>
+    /* ===== ÁREA DA IMAGEM ===== */
+    #imagem-cena {
+        width: 100%;
+        height: 300px;
+        margin: 0 0 20px;
+        border: 1px solid #29313a;
+        background: #05070a;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #sceneImage {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    #img-fallback {
+        display: none;
+        position: absolute;
+        inset: 0;
+        padding: 15px;
+        background: #11161d;
+        color: #f85149;
+        font-size: 13px;
+        border: 1px dashed #da3633;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
 
-    <style>
-        * { box-sizing: border-box; font-family: Arial, sans-serif; }
-        :root {
-            --bg-1: #090909; --bg-2: #151515;
-            --panel: #171717; --panel-2: #1d1d1d;
-            --border: rgba(255,255,255,.10);
-            --text: #f4f4f4; --muted: rgba(255,255,255,.68);
-            --accent: #d5d5d5; --danger: #ffaaaa;
-        }
+    #text {
+        white-space: pre-line;
+        line-height: 1.7;
+        min-height: 280px;
+        border-top: 1px solid #29313a;
+        border-bottom: 1px solid #29313a;
+        padding: 22px 5px;
+    }
+    #choices {
+        display: grid;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    button {
+        background: #151b22;
+        color: #dce4eb;
+        border: 1px solid #4a5662;
+        padding: 13px;
+        font: inherit;
+        cursor: pointer;
+        text-align: left;
+        transition: .15s;
+    }
+    button:hover {
+        background: #222b34;
+        border-color: #8996a2;
+        transform: translateX(3px);
+    }
+    .status {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-top: 18px;
+        padding: 10px 12px;
+        background: #090c10;
+        border: 1px solid #29313a;
+        color: #98a5b1;
+        font-size: 14px;
+    }
+    .restart {
+        margin-top: 18px;
+        text-align: center;
+    }
+    .restart button {
+        display: inline-block;
+        text-align: center;
+        padding: 9px 18px;
+    }
+    .ending {
+        text-align: center;
+    }
 
-        body {
-            margin: 0; padding: 0;
-            width: 100vw; height: 100vh;
-            color: var(--text);
-            background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
-            overflow: hidden;
-            display: flex; flex-direction: column;
-        }
-
-        #tela-inicio {
-            position: fixed; inset: 0; z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(5,5,5,0.95);
-        }
-        .painel-inicio {
-            width: 90%; max-width: 550px;
-            padding: 30px; text-align: center;
-            background: #111; border: 1px solid var(--border);
-            border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,.9);
-        }
-        #capa-jogo {
-            width: 100%; max-height: 220px; object-fit: cover;
-            border-radius: 10px; margin-bottom: 15px; border: 1px solid var(--border);
-        }
-        #titulo-abertura { margin: 5px 0; font-size: 2rem; letter-spacing: 2px; }
-        #subtitulo-abertura { color: var(--muted); margin-bottom: 20px; font-size: 0.95rem; }
-        #botao-iniciar {
-            width: 100%; padding: 14px; font-size: 1.1rem; font-weight: bold;
-            background: #fff; color: #000; border: none; border-radius: 8px;
-            cursor: pointer; transition: 0.2s;
-        }
-        #botao-iniciar:hover:not(:disabled) { transform: scale(1.02); }
-        #botao-iniciar:disabled { opacity: 0.5; cursor: wait; }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto 1fr;
-            grid-template-areas: "cabecalho cabecalho" "midia painel";
-            gap: 15px; max-width: 1400px; width: 100%; height: 100%;
-            margin: 0 auto; padding: 15px; overflow: hidden;
-        }
-        
-        .cabecalho { grid-area: cabecalho; text-align: center; }
-        #titulo-jogo { margin: 0; font-size: 1.5rem; letter-spacing: 1px; }
-        #autor-jogo { margin: 2px 0 0; color: var(--muted); font-size: 0.8rem; }
-
-        .midia {
-            grid-area: midia; display: flex; flex-direction: column;
-            background: var(--panel-2); padding: 10px;
-            border: 1px solid var(--border); border-radius: 16px; min-height: 0;
-        }
-        .media-frame {
-            flex: 1; display: flex; align-items: center; justify-content: center;
-            background: #000; border-radius: 12px; overflow: hidden; min-height: 0;
-        }
-        #imagem-cena, #video-cena {
-            max-width: 100%; max-height: 100%; object-fit: contain;
-        }
-        
-        #btn-mutar {
-            width: 100%; margin-top: 8px; padding: 8px;
-            background: #2a2a2a; color: #fff; border: 1px solid var(--border);
-            border-radius: 8px; cursor: pointer; font-size: 0.85rem;
-            flex-shrink: 0;
-        }
-        #btn-mutar:hover { background: #3a3a3a; }
-
-        .painel-jogo {
-            grid-area: painel; display: flex; flex-direction: column; gap: 10px;
-            background: var(--panel); padding: 15px;
-            border: 1px solid var(--border); border-radius: 16px; min-height: 0; overflow: hidden;
-        }
-        #titulo-cena { margin: 0; font-size: 1.3rem; color: var(--accent); flex-shrink: 0; }
-        
-        #texto-cena {
-            flex: 1; overflow-y: auto; white-space: pre-line;
-            padding: 12px; background: rgba(255,255,255,.03);
-            border-left: 4px solid var(--muted); border-radius: 8px;
-            font-size: 0.95rem; line-height: 1.5; min-height: 60px;
-        }
-
-        #status { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; flex-shrink: 0; }
-        .status-box {
-            padding: 6px; background: rgba(255,255,255,.03);
-            border: 1px solid var(--border); border-radius: 8px; text-align: center;
-        }
-        .status-label { display: block; font-size: 0.6rem; color: var(--muted); text-transform: uppercase; margin-bottom: 2px; }
-        .status-value { font-size: 0.95rem; font-weight: bold; }
-        #vida.danger { color: var(--danger); }
-
-        #inventario-box { cursor: pointer; transition: background 0.2s; }
-        #inventario-box:hover { background: rgba(255,255,255,0.08); }
-        
-        #modal-inventario {
-            display: none; position: fixed; inset: 0; z-index: 99999;
-            background: rgba(0,0,0,0.7); align-items: center; justify-content: center;
-        }
-        .modal-conteudo {
-            background: #1a1a1a; border: 1px solid var(--border); padding: 20px;
-            border-radius: 12px; width: 320px; text-align: center;
-        }
-        .modal-conteudo h3 { margin-top: 0; color: var(--accent); }
-        #lista-itens { list-style: none; padding: 0; margin: 10px 0; text-align: left; max-height: 150px; overflow-y: auto; }
-        #lista-itens li { padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; }
-        #fechar-inventario { padding: 6px 15px; background: #333; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
-
-        #opcoes { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 8px; 
-            flex-shrink: 0; 
-        }
-        .botao-opcao {
-            padding: 10px; background: #292929; color: #fff;
-            border: 1px solid rgba(255,255,255,.2); border-radius: 8px;
-            cursor: pointer; font-size: 0.85rem; transition: 0.2s; text-align: center;
-        }
-        .botao-opcao:hover:not(:disabled) { background: #3a3a3a; transform: translateY(-1px); }
-        .botao-opcao:disabled { display: none; }
-
-        #reiniciar { 
-            background: #1a1a1a; flex-shrink: 0; padding: 7px; font-size: 0.8rem;
-            color: var(--muted); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
-        }
-        #reiniciar:hover { color: #fff; background: #252525; }
-
-        @media (max-width: 900px) {
-            .container {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 30vh 1fr;
-                grid-template-areas: "cabecalho" "midia" "painel";
-                padding: 8px; gap: 8px; overflow-y: auto;
-            }
-            body { overflow: auto; }
-            #opcoes { grid-template-columns: 1fr; }
-        }
-    </style>
+    @media (max-width: 600px) {
+        #imagem-cena { height: 220px; }
+        .game { padding: 18px; }
+    }
+</style>
 </head>
 <body>
+<div class="game">
+    <h1>PROJETO ECLIPSE</h1>
+    <div class="subtitle">Laboratório • Memórias • Escolhas</div>
 
-    <div id="tela-inicio">
-        <div class="painel-inicio">
-            <img id="capa-jogo" src="assets/imagens/capa.jfif" alt="Capa do Projeto Eclipse" onerror="this.style.display='none'">
-            <h1 id="titulo-abertura">PROJETO ECLIPSE</h1>
-            <p id="subtitulo-abertura">Carregando sistema de segurança...</p>
-            <button id="botao-iniciar" type="button" disabled>CARREGANDO...</button>
+    <div id="imagem-cena">
+        <img id="sceneImage" src="" alt="Cena Atual">
+        <div id="img-fallback">
+            <strong>[IMAGEM NÃO CARREGADA]</strong>
+            <span id="img-fallback-nome" style="margin-top: 6px; color: #8b949e;"></span>
         </div>
     </div>
 
-    <div id="modal-inventario">
-        <div class="modal-conteudo">
-            <h3>🎒 Seus Itens Coletados</h3>
-            <ul id="lista-itens"><li>Vazio</li></ul>
-            <button id="fechar-inventario" type="button">Fechar</button>
-        </div>
+    <div id="text"></div>
+    <div id="choices"></div>
+
+    <div class="status">
+        <span id="vida">Vida: 5/5</span>
+        <span id="inventario">Inventário: vazio</span>
     </div>
 
-    <main class="container">
-        <header class="cabecalho">
-            <h1 id="titulo-jogo">Projeto Eclipse</h1>
-            <p id="autor-jogo">Anna Beatriz</p>
-        </header>
+    <div class="restart">
+        <button onclick="reiniciar()">↻ Reiniciar jogo</button>
+    </div>
+</div>
 
-        <section class="midia">
-            <div class="media-frame">
-                <img id="imagem-cena" src="" alt="Cenário" style="display: none;">
-                <video id="video-cena" controls playsinline style="display: none;"></video>
-            </div>
-            
-            <audio id="audio-fundo" loop style="display: none;"></audio>
-            <button id="btn-mutar" type="button">🔊 Áudio: Ligado</button>
-        </section>
+<script>
+const state = {
+    vida: 5,
+    inv: new Set(),
+    codigo: [],
+    verdade: false,
+    gerador: false,
+    mapa: false,
+    radio: false,
+    originalSalvo: false,
+    final: null
+};
 
-        <section class="painel-jogo">
-            <h2 id="titulo-cena">Cena</h2>
-            <div id="texto-cena">Carregando história...</div>
-            
-            <section id="status">
-                <div class="status-box"><span class="status-label">Vida</span><div id="vida" class="status-value">❤️ ❤️ ❤️</div></div>
-                <div class="status-box" id="inventario-box" title="Clique para ver os itens">
-                    <span class="status-label">Inventário</span>
-                    <div id="inventario" class="status-value">0 itens</div>
-                </div>
-                <div class="status-box"><span class="status-label">Pontos</span><div id="pontos" class="status-value">0</div></div>
-            </section>
-            
-            <div id="opcoes">
-                <button id="opcao1" class="botao-opcao" type="button"></button>
-                <button id="opcao2" class="botao-opcao" type="button"></button>
-                <button id="opcao3" class="botao-opcao" type="button"></button>
-                <button id="opcao4" class="botao-opcao" type="button"></button>
-            </div>
-            <button id="reiniciar" type="button">↻ Reiniciar aventura</button>
-        </section>
-    </main>
+const text = document.getElementById("text");
+const choices = document.getElementById("choices");
+const sceneImage = document.getElementById("sceneImage");
+const imgFallback = document.getElementById("img-fallback");
+const imgFallbackNome = document.getElementById("img-fallback-nome");
 
-    <script>
-        const PADRAO_IMAGEM = "assets/imagens/capa.jfif";
-        const btnMutar = document.getElementById("btn-mutar");
-        const audio = document.getElementById("audio-fundo");
-        const modalInv = document.getElementById("modal-inventario");
-        const boxInv = document.getElementById("inventario-box");
-        const fecharInv = document.getElementById("fechar-inventario");
+/* ============================================================
+   CONFIGURAÇÃO DE PASTAS E ARQUIVOS (BUSCA DINÂMICA)
+============================================================ */
+// O script testará em todas essas pastas automaticamente
+const PASTAS_BUSCA = [
+    "assets/imagens/",
+    "assets/imagem/",
+    "assets/",
+    "imagens/",
+    "imagem/",
+    "./"
+];
 
-        btnMutar.addEventListener("click", () => {
-            audio.muted = !audio.muted;
-            btnMutar.innerText = audio.muted ? "🔇 Áudio: Mutado" : "🔊 Áudio: Ligado";
-        });
+// O script testará em todas essas extensões se você não colocar ou errar a extensão
+const EXTENSOES = [".jfif", ".jpg", ".png", ".jpeg", ".webp"];
 
-        boxInv.addEventListener("click", () => { modalInv.style.display = "flex"; });
-        fecharInv.addEventListener("click", () => { modalInv.style.display = "none"; });
+// Mapeia tanto os nomes temáticos do seu main.py quanto os numéricos que você usava
+const IMAGENS = {
+    inicio: ["despertar", "capa", "imagem(1)", "imagem (1)"],
+    armario: ["armario", "imagem(2)", "imagem (2)"],
+    corredor: ["corredor", "imagem(3)", "imagem (3)"],
+    portaRestrita: ["porta_blindada", "imagem(4)", "imagem (4)"],
+    porta: ["porta_seguranca", "imagem(5)", "imagem (5)"],
+    controle: ["sala_controle", "imagem(6)", "imagem (6)"],
+    controleArquivo: ["sala_controle", "imagem(7)", "imagem (7)"],
+    subsolo: ["laboratorios_inferiores", "subsolo", "imagem(8)", "imagem (8)"],
+    sala17: ["sala17", "imagem(9)", "imagem (9)"],
+    laboratorio: ["tanques_clonagem", "laboratorio", "imagem(10)", "imagem (10)"],
+    documentos: ["tanques_clonagem", "imagem(11)", "imagem (11)"],
+    gerador: ["gerador", "imagem(12)", "imagem (12)"],
+    salaEscura: ["sala_escura", "imagem(13)", "imagem (13)"],
+    arquivo: ["arquivo_morto", "arquivo", "imagem(14)", "imagem (14)"],
+    memorias: ["camara_memorias", "memorias", "imagem(15)", "imagem (15)"],
+    verdade: ["revelacao_original", "verdade", "imagem(16)", "imagem (16)"],
+    fugaDupla: ["fuga_capsula", "fuga_dupla", "imagem(17)", "imagem (17)"],
+    alarme: ["alarme", "alarme_criatura", "imagem(18)", "imagem (18)"],
+    tunel: ["duto_ventilacao", "tunel", "imagem(19)", "imagem (19)"],
+    salaSecreta: ["cadeira_neural", "sala_secreta", "imagem(20)", "imagem (20)"],
+    nucleo: ["nucleo_reator", "nucleo", "imagem(21)", "imagem (21)"],
+    procurarParte2: ["tanques_clonagem", "imagem(22)", "imagem (22)"],
+    libertar: ["rede_global", "libertar", "imagem(23)", "imagem (23)"],
+    saidaFalsa: ["floresta_copias", "saida_falsa", "imagem(24)", "imagem (24)"],
+    fimVerdadeiro: ["fim_liberdade", "fim_verdadeiro", "imagem(25)", "imagem (25)"],
+    fimSacrificio: ["fim_sacrificio", "imagem(26)", "imagem (26)"],
+    fimEgoista: ["fim_egoista", "imagem(27)", "imagem (27)"],
+    finalDigital: ["deus_digital", "final_digital", "imagem(28)", "imagem (28)"],
+    finalMemorias: ["mente_coletiva", "final_memorias", "imagem(29)", "imagem (29)"],
+    fimLibertador: ["fim_libertador", "imagem(30)", "imagem (30)"],
+    fimMisterioso: ["ciclo_continua", "fim_misterioso", "imagem(31)", "imagem (31)"],
+    fimRuim: ["game_over", "fim_ruim", "imagem(32)", "imagem (32)"]
+};
 
-        window.frameworkAudio = {
-            async play(src, volume = 0.5, loop = true) {
-                if (src && audio.getAttribute("src") !== src) {
-                    audio.src = src; audio.load();
-                }
-                audio.volume = volume; audio.loop = loop;
-                try { await audio.play(); } catch (e) {}
-            },
-            stop() { audio.pause(); audio.currentTime = 0; }
-        };
+function mudarImagem(cena) {
+    const possiveisNomes = IMAGENS[cena] || [cena];
+    let tentativas = [];
 
-        window.frameworkImage = {
-            show(src) {
-                const img = document.getElementById("imagem-cena");
-                img.onload = () => { img.style.display = "block"; };
-                img.onerror = () => {
-                    // Evita looping se o fallback também falhar
-                    img.onerror = () => { img.style.display = "none"; };
-                    if (img.src !== PADRAO_IMAGEM) {
-                        img.src = PADRAO_IMAGEM;
-                    } else {
-                        img.style.display = "none";
-                    }
-                };
-                img.src = src || PADRAO_IMAGEM;
-            },
-            hide() { document.getElementById("imagem-cena").style.display = "none"; }
-        };
-
-        window.frameworkVideo = {
-            async play(src, autoplay = false) {
-                const vid = document.getElementById("video-cena");
-                document.getElementById("imagem-cena").style.display = "none";
-                vid.src = src; vid.style.display = "block"; vid.load();
-                if (autoplay) { try { await vid.play(); } catch(e) {} }
-            },
-            stop() {
-                const vid = document.getElementById("video-cena");
-                vid.pause(); vid.style.display = "none"; vid.removeAttribute("src");
+    // Monta todas as combinações de Pastas + Nomes + Extensões
+    PASTAS_BUSCA.forEach(pasta => {
+        possiveisNomes.forEach(nome => {
+            if (nome.includes(".")) {
+                tentativas.push(pasta + nome);
+            } else {
+                EXTENSOES.forEach(ext => {
+                    tentativas.push(pasta + nome + ext);
+                });
             }
-        };
-
-        document.getElementById("botao-iniciar").addEventListener("click", async function () {
-            const trilhaInicial = audio.dataset.inicial || "";
-            if (trilhaInicial) { await window.frameworkAudio.play(trilhaInicial, 0.5, true); }
-            document.getElementById("tela-inicio").style.display = "none";
         });
-    </script>
-    <script type="py" src="./main.py"></script>
+    });
+
+    let index = 0;
+    imgFallback.style.display = "none";
+    sceneImage.style.display = "block";
+
+    function testarProximo() {
+        if (index < tentativas.length) {
+            sceneImage.src = tentativas[index];
+            index++;
+        } else {
+            // Nenhuma variação existiu no disco
+            sceneImage.style.display = "none";
+            imgFallback.style.display = "flex";
+            imgFallbackNome.innerText = `Cena: "${cena}"\nArquivos procurados: ${possiveisNomes.slice(0, 3).join(", ")}...\nVerifique suas pastas no painel da esquerda.`;
+        }
+    }
+
+    sceneImage.onerror = testarProximo;
+    testarProximo();
+}
+
+function mostrar(mensagem, opcoes) {
+    text.textContent = mensagem;
+    choices.innerHTML = "";
+
+    opcoes.forEach(([nome, acao]) => {
+        const botao = document.createElement("button");
+        botao.textContent = nome;
+        botao.onclick = acao;
+        choices.appendChild(botao);
+    });
+
+    atualizarStatus();
+}
+
+function atualizarStatus() {
+    document.getElementById("vida").textContent = `Vida: ${state.vida}/5`;
+    document.getElementById("inventario").textContent =
+        "Inventário: " + (state.inv.size ? [...state.inv].join(", ") : "vazio");
+}
+
+function pegar(item) {
+    if (!state.inv.has(item)) state.inv.add(item);
+}
+
+function dano(valor = 1) {
+    state.vida = Math.max(0, state.vida - valor);
+    return state.vida > 0;
+}
+
+/* ================= INÍCIO ================= */
+
+function inicio() {
+    mudarImagem("inicio");
+    mostrar(`Você acorda no chão de um laboratório.
+Uma luz vermelha pisca no teto.
+
+Você não lembra seu nome.
+
+"PROTOCOLO DE CONTENÇÃO ATIVO."
+"TEMPO PARA COLAPSO: 47 MINUTOS."
+
+Na porta está escrito:
+
+"NÃO CONFIE NAQUELE QUE TEM O SEU ROSTO."
+
+O que você faz?`, [
+        ["1) Investigar o corredor", corredor],
+        ["2) Abrir o armário", armario],
+        ["3) Examinar a porta restrita", portaRestrita],
+        ["4) Procurar uma saída", salaEscura]
+    ]);
+}
+
+/* ================= ARMÁRIO ================= */
+
+function armario() {
+    mudarImagem("armario");
+    const opcoes = [];
+
+    if (!state.inv.has("lanterna"))
+        opcoes.push(["1) Pegar lanterna", () => {
+            pegar("lanterna");
+            mostrar(`Você pega a lanterna.
+Agora consegue enxergar os laboratórios inferiores.`, [
+                ["Ir para os laboratórios", subsolo],
+                ["Voltar ao armário", armario]
+            ]);
+        }]);
+
+    if (!state.inv.has("chave"))
+        opcoes.push(["2) Pegar chave", () => {
+            pegar("chave");
+            mostrar(`Você encontrou uma chave de segurança.
+Ela parece pertencer a uma porta pesada.`, [
+                ["Ir para a porta de segurança", porta],
+                ["Investigar o corredor", corredor]
+            ]);
+        }]);
+
+    if (!state.inv.has("kit"))
+        opcoes.push(["3) Pegar kit médico", () => {
+            pegar("kit");
+            state.vida = Math.min(5, state.vida + 2);
+            mostrar(`Você usa o kit e recupera parte da energia.
+Vida restaurada.`, [
+                ["Examinar o armário novamente", armario],
+                ["Voltar ao corredor", corredor]
+            ]);
+        }]);
+
+    if (!state.inv.has("cracha"))
+        opcoes.push(["4) Pegar crachá", () => {
+            pegar("cracha");
+            mostrar(`O crachá mostra:
+
+DR. MATEUS ALMEIDA
+DIRETOR DO PROJETO`, [
+                ["Testar o crachá na porta restrita", portaRestrita],
+                ["Voltar ao corredor", corredor]
+            ]);
+        }]);
+
+    opcoes.push(["5) Examinar fotografia", () => {
+        state.verdade = true;
+        mostrar(`A fotografia mostra os cientistas do Projeto Eclipse.
+
+No centro está um homem com o seu rosto.
+
+No verso:
+"Dr. Mateus Almeida — Diretor do Projeto."
+
+Algo está muito errado.`, [
+            ["Investigar o corredor", corredor],
+            ["Voltar ao armário", armario]
+        ]);
+    }]);
+
+    opcoes.push(["6) Sair", corredor]);
+    mostrar("ARMÁRIO DE EMERGÊNCIA\n\nO que você procura?", opcoes);
+}
+
+/* ================= CORREDOR ================= */
+
+function corredor() {
+    mudarImagem("corredor");
+    mostrar(`CORREDOR PRINCIPAL
+
+Três caminhos estão diante de você.
+
+À esquerda: SALA DE CONTROLE.
+À direita: LABORATÓRIOS INFERIORES.
+À frente: PORTA DE SEGURANÇA.
+
+Você escuta:
+
+TOC... TOC... TOC...
+
+O som vem do andar inferior.`, [
+        ["1) Ir para a sala de controle", controle],
+        ["2) Descer para os laboratórios", subsolo],
+        ["3) Tentar a porta de segurança", porta],
+        ["4) Procurar o laboratório principal", laboratorio]
+    ]);
+}
+
+/* ================= PORTAS ================= */
+
+function portaRestrita() {
+    mudarImagem("portaRestrita");
+    if (state.inv.has("cracha")) {
+        mostrar(`O leitor reconhece o crachá.
+
+"DR. MATEUS ALMEIDA."
+
+A porta se abre lentamente.`, [
+            ["Entrar no laboratório", laboratorio],
+            ["Voltar ao corredor", corredor]
+        ]);
+        return;
+    }
+
+    mostrar(`PORTA RESTRITA
+
+O leitor exige identificação.
+
+Você não possui um crachá.`, [
+        ["Procurar um crachá", armario],
+        ["Forçar o painel", () => {
+            if (!dano()) return fimRuim("A descarga derruba você.");
+            mostrar(`Você força o painel e recebe uma descarga.
+A porta continua fechada.
+
+Vida: ${state.vida}/5`, [
+                ["Voltar ao corredor", corredor]
+            ]);
+        }],
+        ["Voltar", corredor]
+    ]);
+}
+
+function porta() {
+    mudarImagem("porta");
+    if (state.inv.has("chave") || state.inv.has("cracha")) {
+        mostrar(`PORTA DE SEGURANÇA
+
+O mecanismo reconhece seu acesso.
+
+CLIC.
+
+A porta destranca.`, [
+            ["Entrar", salaEscura],
+            ["Voltar", corredor]
+        ]);
+        return;
+    }
+
+    mostrar(`PORTA DE SEGURANÇA
+
+Está trancada.
+Você precisa de uma chave ou crachá.`, [
+        ["Procurar uma chave", armario],
+        ["Procurar um crachá", portaRestrita],
+        ["Forçar a porta", () => {
+            if (!dano()) return fimRuim("Você não consegue continuar.");
+            mostrar(`A porta não se move.
+Você se machuca e recua.
+
+Vida: ${state.vida}/5`, [
+                ["Voltar ao corredor", corredor]
+            ]);
+        }]
+    ]);
+}
+
+/* ================= CONTROLE ================= */
+
+function controle() {
+    mudarImagem("controle");
+    mostrar(`SALA DE CONTROLE
+
+O monitor mostra:
+
+PROJETO ECLIPSE — STATUS CRÍTICO
+
+O que você quer investigar?`, [
+        ["1) Ler o relatório", () => {
+            state.verdade = true;
+            mostrar(`O projeto começou estudando memórias humanas.
+Depois, os cientistas descobriram como copiar uma consciência.
+
+O problema:
+as cópias acreditavam ser as pessoas originais.`, [
+                ["Investigar o arquivo pessoal", () => controleArquivo()],
+                ["Ir ao laboratório", laboratorio],
+                ["Voltar ao corredor", corredor]
+            ]);
+        }],
+        ["2) Ler o protocolo de evacuação", () => {
+            mostrar(`PROTOCOLO DE EVACUAÇÃO:
+
+1. Restaurar o gerador.
+2. Encontrar as três partes do código.
+3. Inserir o código no núcleo.
+
+Talvez essa seja a única forma de sair.`, [
+                ["Procurar o gerador", laboratorio],
+                ["Descer aos laboratórios", subsolo],
+                ["Voltar", corredor]
+            ]);
+        }],
+        ["3) Ler o arquivo pessoal", controleArquivo],
+        ["4) Ativar computador central", () => {
+            pegar("acesso central");
+            mostrar(`O computador aceita seu acesso.
+
+NOVAS ÁREAS LIBERADAS.
+
+Uma planta do complexo aparece na tela.`, [
+                ["Explorar o laboratório", laboratorio],
+                ["Descer ao subsolo", subsolo]
+            ]);
+        }],
+        ["5) Sair", corredor]
+    ]);
+}
+
+function controleArquivo() {
+    mudarImagem("controleArquivo");
+    state.verdade = true;
+    mostrar(`ARQUIVO PESSOAL — DR. MATEUS ALMEIDA
+
+"Se meu experimento funcionar, uma cópia minha acordará
+sem saber que é uma cópia."
+
+Você sente que já leu aquilo antes...`, [
+        ["Investigar o laboratório", laboratorio],
+        ["Voltar à sala de controle", controle],
+        ["Ir para o corredor", corredor]
+    ]);
+}
+
+/* ================= SUBSOLO ================= */
+
+function subsolo() {
+    mudarImagem("subsolo");
+    if (!state.inv.has("lanterna")) {
+        mostrar(`LABORATÓRIOS INFERIORES
+
+Está escuro demais.
+Você precisa de uma lanterna para avançar.`, [
+            ["Procurar uma lanterna", armario],
+            ["Voltar", corredor]
+        ]);
+        return;
+    }
+
+    mostrar(`LABORATÓRIOS INFERIORES
+
+A lanterna ilumina três placas:
+
+SALA 17 — SETOR MÉDICO
+LABORATÓRIO PRINCIPAL
+ARQUIVO SUBTERRÂNEO`, [
+        ["1) Entrar na Sala 17", sala17],
+        ["2) Ir ao laboratório principal", laboratorio],
+        ["3) Entrar no arquivo", arquivo],
+        ["4) Voltar", corredor]
+    ]);
+}
+
+function sala17() {
+    mudarImagem("sala17");
+    const achou = state.inv.has("parte 1");
+
+    mostrar(`SALA 17 — SETOR MÉDICO
+
+Um monitor exibe:
+
+PACIENTE 07
+IDENTIDADE: MATEUS ALMEIDA
+MEMÓRIA: INCOMPLETA`, [
+        [achou ? "1) Examinar a maca novamente" : "1) Examinar a maca", () => {
+            if (!achou) {
+                pegar("parte 1");
+                state.codigo.push("741");
+                mostrar(`Você encontrou uma placa escondida.
+
+PRIMEIRA PARTE DO CÓDIGO: 7-4-1`, [
+                    ["Procurar outra pista", sala17],
+                    ["Ir ao laboratório principal", laboratorio]
+                ]);
+            } else {
+                mostrar(`A maca está vazia.
+Você já encontrou o que havia aqui.`, [
+                    ["Examinar o computador", sala17],
+                    ["Sair", subsolo]
+                ]);
+            }
+        }],
+        ["2) Examinar o computador", () => {
+            state.verdade = true;
+            mostrar(`O computador desbloqueia sozinho.
+
+"Paciente 07 não é um sobrevivente."
+"Paciente 07 é o experimento."
+"Memórias implantadas com sucesso."
+
+Você começa a desconfiar das próprias lembranças.`, [
+                ["Ir ao laboratório principal", laboratorio],
+                ["Continuar investigando", sala17]
+            ]);
+        }],
+        ["3) Procurar no armário", () => {
+            if (!state.inv.has("kit")) {
+                pegar("kit");
+                mostrar(`Você encontrou um kit médico.
+Pode ser útil mais tarde.`, [
+                    ["Continuar", sala17],
+                    ["Sair", subsolo]
+                ]);
+            } else {
+                mostrar(`O armário está vazio.`, [
+                    ["Voltar", subsolo]
+                ]);
+            }
+        }],
+        ["4) Sair", subsolo]
+    ]);
+}
+
+/* ================= LABORATÓRIO ================= */
+
+function laboratorio() {
+    mudarImagem("laboratorio");
+    mostrar(`LABORATÓRIO PRINCIPAL
+
+No centro existe uma máquina enorme.
+
+ECLIPSE
+ENERGIA: 23%
+CONTENÇÃO: INSTÁVEL
+
+O que você faz?`, [
+        ["1) Examinar a máquina", () => {
+            state.verdade = true;
+            mostrar(`A máquina reconhece seu rosto.
+
+"IDENTIDADE: MATEUS ALMEIDA."
+
+As telas mostram dezenas de pessoas iguais a você.
+
+Existem várias cópias.`, [
+                ["Investigar a sala escura", salaEscura],
+                ["Procurar documentos", documentos],
+                ["Voltar", corredor]
+            ]);
+        }],
+        ["2) Procurar documentos", documentos],
+        ["3) Procurar o gerador", gerador],
+        ["4) Procurar uma passagem secreta", () => {
+            if (state.inv.has("mapa")) {
+                mostrar(`O mapa revela uma parede falsa.
+
+Atrás dela existe uma passagem.`, [
+                    ["Entrar no arquivo", arquivo],
+                    ["Voltar", laboratorio]
+                ]);
+            } else {
+                mostrar(`Você procura por vários minutos, mas não encontra nada.
+Talvez um mapa possa ajudar.`, [
+                    ["Procurar documentos", documentos],
+                    ["Voltar", laboratorio]
+                ]);
+            }
+        }],
+        ["5) Sair", subsolo]
+    ]);
+}
+
+function documentos() {
+    mudarImagem("documentos");
+    if (!state.inv.has("parte 2")) {
+        pegar("parte 2");
+        state.codigo.push("926");
+        pegar("mapa");
+        state.mapa = true;
+
+        mostrar(`Entre os documentos você encontra um mapa e uma placa.
+
+SEGUNDA PARTE DO CÓDIGO: 9-2-6
+
+O mapa mostra um arquivo subterrâneo escondido.`, [
+            ["Seguir o mapa", arquivo],
+            ["Procurar o gerador", gerador],
+            ["Voltar ao laboratório", laboratorio]
+        ]);
+    } else {
+        mostrar(`Você já examinou todos os documentos importantes.
+O mapa indica que o arquivo fica abaixo do laboratório.`, [
+            ["Ir para o arquivo", arquivo],
+            ["Procurar o gerador", gerador],
+            ["Voltar", laboratorio]
+        ]);
+    }
+}
+
+/* ================= GERADOR ================= */
+
+function gerador() {
+    mudarImagem("gerador");
+    if (state.gerador) {
+        mostrar(`O gerador já está funcionando.
+
+As luzes do laboratório continuam acesas.`, [
+            ["Ir ao núcleo", nucleo],
+            ["Voltar ao laboratório", laboratorio]
+        ]);
+        return;
+    }
+
+    mostrar(`GERADOR
+
+Uma alavanca controla a energia do complexo.
+
+O que você faz?`, [
+        ["1) Ligar o gerador", () => {
+            state.gerador = true;
+            mostrar(`Você puxa a alavanca.
+
+VRRRRRRR...
+
+As luzes voltam.
+
+ALARME: CONTENÇÃO ATIVA.
+
+Algo está se aproximando.`, [
+                ["Correr para o túnel", alarme],
+                ["Ir ao laboratório", laboratorio]
+            ]);
+        }],
+        ["2) Examinar o painel", () => {
+            pegar("chave magnética");
+            mostrar(`Você encontra uma chave magnética escondida no painel.
+
+O núcleo exige estabilização manual.`, [
+                ["Ir ao laboratório", laboratorio],
+                ["Procurar o núcleo", nucleo]
+            ]);
+        }],
+        ["3) Voltar", laboratorio]
+    ]);
+}
+
+/* ================= SALA ESCURA ================= */
+
+function salaEscura() {
+    mudarImagem("salaEscura");
+    mostrar(`SALA ESCURA
+
+Um rádio liga sozinho.
+
+"...não ligue o gerador..."
+"...eles vão perceber que você está vivo..."
+
+Depois, uma voz diz:
+
+"Mateus."
+
+O que você faz?`, [
+        ["1) Responder pelo rádio", () => {
+            state.radio = true;
+            mostrar(`"Quem está falando?"
+
+"Alguém que tentou escapar."
+
+"Quem é você?"
+
+"Eu sou você."
+
+A transmissão termina.`, [
+                ["Seguir para o arquivo", arquivo],
+                ["Voltar", corredor]
+            ]);
+        }],
+        ["2) Examinar o rádio", () => {
+            pegar("chave magnética");
+            mostrar(`Dentro do rádio existe uma chave magnética.
+Quem colocou isso aqui sabia que você viria.`, [
+                ["Ir ao laboratório", laboratorio],
+                ["Ir ao arquivo", arquivo]
+            ]);
+        }],
+        ["3) Procurar uma saída", tunel],
+        ["4) Voltar", corredor]
+    ]);
+}
+
+/* ================= ARQUIVO ================= */
+
+function arquivo() {
+    mudarImagem("arquivo");
+    mostrar(`ARQUIVO SUBTERRÂNEO
+
+Há centenas de caixas.
+Muitas possuem o nome:
+
+MATEUS ALMEIDA
+
+Uma porta diz:
+
+"MEMÓRIAS ORIGINAIS"`, [
+        ["1) Abrir a porta", memorias],
+        ["2) Procurar documentos", () => {
+            state.verdade = true;
+            mostrar(`Você encontra um documento:
+
+"PACIENTE 07 — CÓPIA Nº 13"
+
+Você é a décima terceira cópia.`, [
+                ["Abrir as memórias originais", memorias],
+                ["Procurar a terceira parte do código", arquivo]
+            ]);
+        }],
+        ["3) Procurar a terceira parte do código", () => {
+            if (!state.inv.has("parte 3")) {
+                pegar("parte 3");
+                state.codigo.push("835");
+                mostrar(`Atrás de uma caixa existe uma placa.
+
+TERCEIRA PARTE DO CÓDIGO: 8-3-5`, [
+                    ["Ir ao núcleo", nucleo],
+                    ["Abrir as memórias originais", memorias]
+                ]);
+            } else {
+                mostrar(`Você já encontrou a terceira parte do código.`, [
+                    ["Ir ao núcleo", nucleo],
+                    ["Abrir as memórias", memorias]
+                ]);
+            }
+        }],
+        ["4) Voltar", salaEscura]
+    ]);
+}
+
+/* ================= MEMÓRIAS ================= */
+
+function memorias() {
+    mudarImagem("memorias");
+    mostrar(`MEMÓRIAS ORIGINAIS
+
+Dentro da sala há várias cápsulas.
+
+Uma delas possui a etiqueta:
+
+MATEUS ALMEIDA
+ORIGINAL
+STATUS: VIVO`, [
+        ["1) Abrir a cápsula", verdade],
+        ["2) Destruir o sistema", () => {
+            mostrar(`O sistema entra em alerta.
+
+As portas começam a fechar.
+O alarme dispara.`, [
+                ["Correr", alarme],
+                ["Tentar chegar ao núcleo", nucleo]
+            ]);
+        }],
+        ["3) Ler o relatório", () => {
+            state.verdade = true;
+            mostrar(`O relatório confirma:
+
+O original foi mantido vivo para servir como fonte de memória.
+As cópias recebem as mesmas lembranças.
+
+Agora você sabe quem é.`, [
+                ["Abrir a cápsula", verdade],
+                ["Ir ao núcleo", nucleo]
+            ]);
+        }],
+        ["4) Sair", arquivo]
+    ]);
+}
+
+/* ================= VERDADE ================= */
+
+function verdade() {
+    mudarImagem("verdade");
+    state.verdade = true;
+
+    mostrar(`A VERDADE
+
+O homem dentro da cápsula acorda.
+
+"Eu sou Mateus."
+
+Suas lembranças foram copiadas.
+Você é uma cópia.
+
+Mas suas escolhas são suas.
+
+O que você decide?`, [
+        ["1) Ajudar o original", fugaDupla],
+        ["2) Fugir sozinho", fimEgoista],
+        ["3) Destruir o Eclipse", nucleo],
+        ["4) Perguntar como escapar", tunel]
+    ]);
+}
+
+function fugaDupla() {
+    mudarImagem("fugaDupla");
+    state.originalSalvo = true;
+
+    mostrar(`Você ajuda o verdadeiro Mateus a sair da cápsula.
+
+Vocês chegam a uma bifurcação.
+
+Desta vez, a escolha é dos dois.`, [
+        ["1) Seguir pelo túnel", tunel],
+        ["2) Ir para a saída principal", fimVerdadeiro],
+        ["3) Voltar e destruir o Eclipse", nucleo]
+    ]);
+}
+
+/* ================= ALARME ================= */
+
+function alarme() {
+    mudarImagem("alarme");
+    mostrar(`ALARME
+
+As portas começam a fechar.
+
+Você ouve passos se aproximando.
+
+Algo está vindo pelo corredor.
+
+Você precisa agir rápido.`, [
+        ["1) Correr", () => {
+            if (state.inv.has("mapa")) {
+                mostrar(`O mapa mostra um túnel de manutenção.
+Você corre na direção indicada.`, [
+                    ["Entrar no túnel", tunel]
+                ]);
+            } else {
+                if (!dano(2)) return fimRuim("Você corre sem direção e não consegue continuar.");
+                mostrar(`Você corre sem direção e acaba se machucando.
+
+Vida: ${state.vida}/5`, [
+                    ["Voltar ao laboratório", laboratorio],
+                    ["Procurar uma saída", salaEscura]
+                ]);
+            }
+        }],
+        ["2) Esconder-se", () => {
+            mostrar(`Você se esconde.
+
+Os passos param.
+
+Então uma voz sussurra:
+
+"Eu sei que você está aí."
+
+Você decide sair antes que seja tarde.`, [
+                ["Ir ao laboratório", laboratorio],
+                ["Correr para o túnel", tunel]
+            ]);
+        }],
+        ["3) Procurar uma barra de ferro", () => {
+            pegar("barra");
+            mostrar(`Você encontra uma barra de ferro.
+
+Agora possui algo para se defender.`, [
+                ["Tentar chegar ao túnel", () => {
+                    mostrar(`Você consegue afastar a criatura e alcança o túnel.`, [
+                        ["Entrar", tunel]
+                    ]);
+                }],
+                ["Voltar ao laboratório", laboratorio]
+            ]);
+        }],
+        ["4) Enfrentar a criatura", () => {
+            if (state.inv.has("barra")) {
+                mostrar(`Você usa a barra para abrir caminho.
+
+A criatura recua.
+
+Você consegue chegar ao túnel.`, [
+                    ["Entrar no túnel", tunel]
+                ]);
+            } else {
+                if (!dano(2)) return fimRuim("A criatura bloqueia sua passagem.");
+                mostrar(`Sem equipamento, você consegue escapar por pouco.
+
+Vida: ${state.vida}/5`, [
+                    ["Correr para o laboratório", laboratorio]
+                ]);
+            }
+        }]
+    ]);
+}
+
+/* ================= TÚNEL ================= */
+
+function tunel() {
+    mudarImagem("tunel");
+    mostrar(`TÚNEL DE MANUTENÇÃO
+
+Três portas aparecem.
+
+AZUL
+VERMELHA
+PRETA
+
+Qual delas você escolhe?`, [
+        ["1) Porta azul", saidaFalsa],
+        ["2) Porta vermelha", nucleo],
+        ["3) Porta preta", salaSecreta]
+    ]);
+}
+
+function salaSecreta() {
+    mudarImagem("salaSecreta");
+    mostrar(`SALA SECRETA
+
+Um espelho mostra seu rosto.
+
+O reflexo sorri.
+
+"Você finalmente chegou."
+
+"Sou a versão que escapou primeiro."
+
+Você sente que essa versão conhece algo que você não conhece.`, [
+        ["1) Perguntar como escapar", nucleo],
+        ["2) Quebrar o espelho", saidaFalsa],
+        ["3) Sentar na cadeira", finalMemorias],
+        ["4) Sair", tunel]
+    ]);
+}
+
+/* ================= NÚCLEO ================= */
+
+function nucleo() {
+    mudarImagem("nucleo");
+    const partes = state.codigo.length;
+
+    if (partes < 3) {
+        mostrar(`NÚCLEO ECLIPSE
+
+CONSCIÊNCIAS CONECTADAS: 847
+
+O código está incompleto.
+Partes encontradas: ${partes}/3`, [
+            ["1) Procurar a parte 1", () => {
+                if (!state.inv.has("parte 1")) sala17();
+                else procurarParte2();
+            }],
+            ["2) Procurar uma parte no laboratório", documentos],
+            ["3) Procurar a parte no arquivo", arquivo],
+            ["4) Voltar", laboratorio]
+        ]);
+        return;
+    }
+
+    mostrar(`NÚCLEO ECLIPSE
+
+Código completo:
+
+741-926-835
+
+CONSCIÊNCIAS CONECTADAS: 847
+
+Agora você decide o destino do Projeto Eclipse.`, [
+        ["1) Desligar o Eclipse", fimSacrificio],
+        ["2) Manter o Eclipse funcionando", fimMisterioso],
+        ["3) Transferir sua consciência", finalDigital],
+        ["4) Libertar todas as consciências", libertar]
+    ]);
+}
+
+function procurarParte2() {
+    mudarImagem("procurarParte2");
+    if (!state.inv.has("parte 2")) documentos();
+    else arquivo();
+}
+
+function libertar() {
+    mudarImagem("libertar");
+    if (state.inv.has("kit")) {
+        mostrar(`Você usa o equipamento médico para estabilizar o sistema.
+
+As 847 consciências são libertadas.
+
+O Eclipse começa a desligar.
+
+Você sobrevive.`, [
+            ["Continuar", fimLibertador]
+        ]);
+    } else {
+        mostrar(`Você tenta libertar todas as consciências.
+
+A sobrecarga é grande demais.
+
+O sistema começa a absorver sua consciência.`, [
+            ["Aceitar a conexão", finalDigital],
+            ["Tentar fugir", fimRuim.bind(null, "O núcleo entra em colapso.")]
+        ]);
+    }
+}
+
+/* ================= FINAIS ================= */
+
+function fim(titulo, mensagem) {
+    state.final = titulo;
+    mostrar(`${titulo}
+
+${mensagem}
+
+FINAL ALCANÇADO:
+${titulo}`, [
+        ["Jogar novamente", reiniciar]
+    ]);
+    document.querySelector(".game").classList.add("ending");
+}
+
+function saidaFalsa() {
+    mudarImagem("saidaFalsa");
+    fim("FINAL — O EXÉRCITO DE CÓPIAS",
+`Você chega à floresta.
+
+Dezenas de pessoas aparecem entre as árvores.
+Todas possuem o mesmo rosto que você.
+
+Uma delas diz:
+
+"Bem-vindo de volta, Paciente 07."`);
+}
+
+function fimVerdadeiro() {
+    mudarImagem("fimVerdadeiro");
+    fim("FINAL BOM — A VERDADEIRA FUGA",
+`Você e o verdadeiro Mateus conseguem escapar.
+O Projeto Eclipse é encerrado.
+
+Sua origem não define quem você é.
+Suas escolhas definem.`);
+}
+
+function fimSacrificio() {
+    mudarImagem("fimSacrificio");
+    fim("FINAL — O SACRIFÍCIO",
+`Você desliga o Eclipse e liberta as consciências.
+O sistema é encerrado.
+
+Foi a escolha que ninguém mais conseguiu fazer.`);
+}
+
+function fimEgoista() {
+    mudarImagem("fimEgoista");
+    fim("FINAL — O SOBREVIVENTE",
+`Você abandona o original e foge sozinho.
+
+Meses depois, uma mensagem aparece:
+
+"Eu sei onde você está."`);
+}
+
+function finalDigital() {
+    mudarImagem("finalDigital");
+    fim("FINAL SECRETO — DEUS DIGITAL",
+`Sua consciência é transferida para o sistema.
+
+O Eclipse pergunta:
+
+"QUAL É SUA PRÓXIMA ORDEM?"`);
+}
+
+function finalMemorias() {
+    mudarImagem("finalMemorias");
+    fim("FINAL SECRETO — TODAS AS MEMÓRIAS",
+`Você recupera as memórias das versões anteriores.
+
+Finalmente entende toda a história do Eclipse.
+
+Algumas coisas precisam terminar.`);
+}
+
+function fimLibertador() {
+    mudarImagem("fimLibertador");
+    fim("FINAL BOM — O LIBERTADOR",
+`Todas as consciências são libertadas.
+O laboratório é destruído.
+
+Quando perguntam se você é humano, você pensa:
+
+"Não sei. Mas sei que estou vivo."`);
+}
+
+function fimMisterioso() {
+    mudarImagem("fimMisterioso");
+    fim("FINAL RUIM — O CICLO CONTINUA",
+`Você deixa o Eclipse funcionando.
+
+Mais tarde, uma mensagem aparece:
+
+"NOVO PACIENTE REGISTRADO."
+
+PACIENTE 08.
+PACIENTE 09.
+PACIENTE 10...
+
+O Eclipse continua.`);
+}
+
+function fimRuim(mensagem = "Você não conseguiu escapar.") {
+    mudarImagem("fimRuim");
+    fim("FIM DE JOGO", `${mensagem}
+
+O Projeto Eclipse continua funcionando.
+
+Em algum lugar, uma nova cápsula é ativada.`);
+}
+
+/* ================= REINICIAR ================= */
+
+function reiniciar() {
+    state.vida = 5;
+    state.inv = new Set();
+    state.codigo = [];
+    state.verdade = false;
+    state.gerador = false;
+    state.mapa = false;
+    state.radio = false;
+    state.originalSalvo = false;
+    state.final = null;
+    document.querySelector(".game").classList.remove("ending");
+    inicio();
+}
+
+inicio();
+</script>
 </body>
 </html>
